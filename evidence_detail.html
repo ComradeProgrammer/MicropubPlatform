@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"> 
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
+        <script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+        <script src="https://cdn.staticfile.org/popper.js/1.15.0/umd/popper.min.js"></script>
+        <script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <script src="https://cdn.staticfile.org/axios/0.18.0/axios.min.js"></script>
+        <title></title>
+    </head>
+    <body>
+        <div id='app'>
+            <!--粘性标题栏-->
+            <div class="container-fluid header" v-bind:style="{'background-color':this.styleobject.front}">
+                <!--img src="static/img/guard.png" style="height:60px;width:60px; margin:5px;"-->
+                <div class="header-content" style="display:inline-block;">微证据详情</div>
+                <button  v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"  style="float:right;height:100%;" v-on:click="switchtheme">切换主题</button>
+            </div>
+            <!--主体-->
+            <div class="container-fluid" style="margin-top:30px;">
+                <!--左侧-->
+                <div class="middle">
+                    <!--标题栏-->
+                    <div class="main middle-header" v-bind:style="{'background-color':this.styleobject.front}">
+                        <!--标签-->
+                        <span v-for="topic in topics" style="margin-left:5px;"
+                        v-bind:class="{badge:true,'badge-pill':true,'badge-primary':!darkmode,'badge-success':darkmode}">{{topic}}</span>
+
+                        <!--hr v-bind:style="{border:'1px solid '+this.styleobject.content,margin:'3px'}"-->
+                        <h3>{{this.header}} </h3>
+                    </div>
+                    <!--内容-->
+                    <div class="main middle-body" v-bind:style="{'background-color':this.styleobject.front}">
+                        <span style="font-size: 20px;"><strong>微证据详情:<br>{{content}}</strong></span>
+                        <hr v-bind:style="{border:'1px solid '+this.styleobject.content,margin:'3px'}">
+                        <strong>外部引用:</strong><br/>
+                        {{hrefs.length>0?'':'作者没有引用'}}
+                        <a v-for="(href,index) in hrefs" v-bind:href="href" v-bind:style="{'color':styleobject.content}">
+                            外部引用{{index+1}}:{{href}} <br></a>
+                        
+                    </div>
+                    <!--评论区-->
+                    <div class="main middle-body" v-bind:style="{'background-color':this.styleobject.front,'font-size':'20px'}">
+                        评论区
+                    </div>
+                    <div v-for="comment in comments" class="main comment" v-bind:style="{'background-color':styleobject.front}">
+                        <a href>@{{comment.username}}</a>:{{comment.content}}
+                        <div style="text-align: right;">发表于:{{comment.date}}<br></div>
+                    </div>
+
+                    <div class="main middle-body" v-bind:style="{'background-color':this.styleobject.front,'text-align':'center',width:'100%',margin:'0 auto'}" v-on:click="morecomments()">
+                        点击加载更多
+                    </div>
+                </div>
+                <!--右侧-->
+                <div class="right">
+                    <div class="main right-bar" v-bind:style="{'background-color':this.styleobject.front,'text-align':'center'}">
+                        <strong>微证据详情</strong><br>
+                        发表时间:1991-12-25
+                        <hr v-bind:style="{border:'1px solid '+this.styleobject.content,margin:'3px'}">
+                        <table style="width:100%;text-align: center;" >
+                            <thead>
+                                <th>浏览</th>
+                                <th>点赞</th>
+                                <th>评论</th>
+                            </thead>
+                            <tbody><tr>
+                                <td>{{this.views}}</td>
+                                <td>{{this.like}}</td>
+                                <td>{{this.remark}}</td>
+                            </tr></tbody>
+                        </table>
+                            <div class="btn-group" style="width:99%">
+                                <button v-bind:class="{btn:true,leftbutton:true,
+                                    'btn-outline-primary':!darkmode&&!liked,'btn-outline-success':darkmode&&!liked,
+                                    'btn-primary':!darkmode&&liked,'btn-success':darkmode&&liked}" v-on:click="like_click">
+                                    {{liked?'已点赞':'点赞'}}</button>
+                                <button v-bind:class="{btn:true,leftbutton:true,
+                                    'btn-outline-primary':!darkmode&&!collected,'btn-outline-success':darkmode&&!collected,
+                                    'btn-primary':!darkmode&&collected,'btn-success':darkmode&&collected}">
+                                    {{collected?'已收藏':'收藏'}}</button>
+                                <button v-bind:class="{btn:true,leftbutton:true,'btn-outline-primary':!darkmode,'btn-outline-success':darkmode}">评论</button>
+                            </div>
+                            <template v-if="this.modify">
+                                <button v-bind:class="{btn:true,leftbutton:true,'btn-primary':!darkmode,'btn-success':darkmode}" style="width: 99%;margin-top: 5px;" v-on:click="goto_modify">修改此微证据</button>
+                                <button class="btn btn-danger" style="width: 99%;margin-top: 2px;" v-on:click="goto_delete">删除此微证据</button>
+                        </template>
+                    </div>
+                    <div class="main right-bar" v-bind:style="{'background-color':this.styleobject.front,'text-align':'center'}">
+                        <strong>作者详情</strong><br>
+                        {{this.userinfo.username}}<br>
+                        <a v-bind:href="'userinfo.html?id='+userinfo.id" style="font-size: 12px;">前往Ta的个人主页></a><br>
+                        <img v-bind:src="this.userinfo.avatar?this.userinfo.avatar:'static/img/avater.jpg'" class="avatar"><br>
+                        <span v-if="userinfo.valid" class="badge badge-primary">已注册</span>
+                        <span v-if="userinfo.valid&&userinfo.administrator"class="badge badge-warning">管理员</span>
+                        <span v-if="userinfo.valid&&userinfo.forbidden" class="badge badge-danger">封禁中</span>
+                        <table style="width:100%" v-if="userinfo.valid">
+                            <thead>
+                                <th>微知识</th>
+                                <th>关注Ta</th>
+                                <th>Ta关注</th>
+                            </thead>
+                            <tbody><tr>
+                                <td>{{userinfo.micropub}}</td>
+                                <td>{{userinfo.followed}}</td>
+                                <td>{{userinfo.following}}</td>
+                            </tr></tbody>
+                        </table>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    <script>
+        var app=new Vue({
+            el:"#app",
+            data:{
+                //主题颜色配置
+                darkmode:false,
+                lightcolor:{
+                    front:"white",
+                    background:"#f6f6f6",
+                    content:"rgb(0,128,255)",
+                    alert:"alert alert-primary",
+                    alerterror:'alert alert-danger',
+                    bgpic:"url('static/img/bg.png')"
+                },
+                darkcolor:{
+                    //front:"#282561",
+                    front:"#3e3e3e",
+                    background:"black",
+                    content:"#28a745",
+                    alert:"alert alert-success",
+                    alerterror:'alert alert-danger',
+                    bgpic:"url('static/img/bgdark.png')"
+                },
+                //微证据
+                header:"",
+                content:"",
+                topics:[],
+                hrefs:[],
+                date:"",
+                like:0,
+                views:0,
+                remark:0,
+                liked:false,
+                collected:false,
+                //
+                modify:false,
+                //评论区详情
+                comments:[],
+                //userinfo
+                userinfo:{}
+            },
+            computed:{
+                styleobject:function(){
+                    if(this.darkmode){
+                        return this.darkcolor;
+                    }
+                    else{
+                        return this.lightcolor;
+                    }
+                },  
+            },
+            methods:{
+                switchtheme:function(){
+                    this.darkmode=!this.darkmode;
+                    document.querySelector('body').style.backgroundColor=this.styleobject.background;
+                    document.querySelector('body').style.color=this.styleobject.content;
+                    document.querySelector('body').style.backgroundImage=this.styleobject.bgpic;
+                    window.localStorage["dark"]=this.darkmode;
+                },
+                getQueryVariable:function (variable){
+                    var query = window.location.search.substring(1);
+                    var vars = query.split("&");
+                    for (var i=0;i<vars.length;i++) {
+                        var pair = vars[i].split("=");
+                        if(pair[0] == variable){return pair[1];}
+                    }
+                    return(false);
+                },
+                getdata:function(id){
+                    axios({
+                        method: 'get',
+                        url:'http://114.116.53.43/api/micropubs/'+id,
+                        headers:{
+                            'Content-Type': 'application/json',
+                            'Cache-Control': 'no-cache',
+                            'Authorization':'Bearer '+window.localStorage["token"],
+                        },
+                    }).then(
+                        response=>{
+                            //debugger
+                            this.header=response.data.title;
+                            this.content=response.data.body;
+                            this.date=response.data.timestamp;
+                            this.like=response.data.likers_count;
+                            this.view=response.data.views;
+                            this.remark="???";
+                            this.collected=false;
+                            this.liked=false
+                            response.data.likers.includes(window.localStorage["id"]);
+                            for(var i=0;i<response.data.likers.length;i++){
+                                if(response.data.likers[i].id==window.localStorage["id"]){
+                                    this.liked=true;
+                                    break;
+                                }
+                            }
+                            //
+                            this.topics=[];
+                            this.hrefs=[]
+                            if(response.data.author.id==window.localStorage["id"]){
+                                this.modify=true;
+                            }
+                            this.getuserinfo(response.data.author.id);
+                        }
+                    ).catch(function (error) {
+                        
+                        console.log(error.response)
+                        if(error.response.status==400){
+                            if(!error.response.data.message){
+                                window.location.href="login.html?type=1";
+                                return;
+                            } 
+                        }
+                        else if(error.response==404){
+                            alert("该微猜想不存在或已被删除");
+                            window.history.back(-1);
+                        }
+                    }.bind(this));
+                    
+               },
+               getcomment:function(){
+                    var n=this.comments.length;
+                    for(var i=n;i<n+10;i++){
+                        this.comments.push({
+                            username:"testuser"+i,
+                            account:"account"+i,
+                            content:i+"十五字真言十五字真言十五字真言十五字真言十五字真言十五字真言十五字真言十五字真言十五字真言",
+                            date:"1991-12-25",
+                        })
+                    }
+               },
+               morecomments:function(){
+                   //记住页面位置
+                    var tmp=document.documentElement.scrollTop
+                    this.getcomment();
+                    //DOM更新完成之后再跳回到原来的位置
+                    this.$nextTick(()=>{document.documentElement.scrollTop=tmp;})
+               },
+               getuserinfo:function(user_id){
+                    if(!window.localStorage["token"]){
+                        return;
+                    }
+                    axios({
+                        method: 'get',
+                        url:'http://114.116.53.43/api/users/'+user_id,
+                        headers:{
+                            'Cache-Control': 'no-cache',
+                            'Authorization':'Bearer '+window.localStorage["token"],
+                        },
+                    }).then(
+                        response=>{
+                            //console.log(response)
+                            this.userinfo={
+                                valid:true,
+                                //account:'ussr',
+                                id:user_id,
+                                username:response.data.username,
+                                forbidden:false,
+                                administrator:false,
+                                micropub:response.data.micropubs_count,
+                                followed:response.data.followers_count,
+                                following:response.data.followeds_count,
+                                avatar:response.data._links.avatar,
+                            }
+                        } 
+                    ).catch(function (error) {
+                        if(error.response.status==404){
+                            alert("发生错误");
+                            window.history.back(-1);
+                        }
+                        console.log(error.response)
+                    }.bind(this))
+                
+                },
+                like_click:function(){
+                    var id=this.getQueryVariable("id");
+                    var api="";
+                    if(this.liked){
+                        api="http://114.116.53.43/api/micropubs/"+id+"/unlike"
+                    }
+                    else{
+                        api="http://114.116.53.43/api/micropubs/"+id+"/like"
+                    }
+                    axios({
+                        method: 'get',
+                        url:api,
+                        headers:{
+                            'Cache-Control': 'no-cache',
+                            'Authorization':'Bearer '+window.localStorage["token"],
+                        },
+                    }).then(
+                        response=>{
+                            console.log(response)
+                            window.location.reload();
+                            //this.liked=!this.liked;
+                        } 
+                    ).catch(function (error) {
+                        if(error.response.status==400){
+                            if(!error.response.data.message){
+                                window.location.href="login.html?type=1";
+                                return;
+                            } 
+                        }
+                        else if(error.response==404){
+                            alert("该微猜想不存在或已被删除");
+                            window.history.back(-1);
+                        }
+                        console.log(error.response)
+                    }.bind(this))
+                },
+                goto_modify:function(){
+                    var id=this.getQueryVariable("id");
+                    window.location.href="evidence_create.html?type=1&id="+id;
+                },
+                goto_delete:function(){
+                    var id=this.getQueryVariable("id");
+                    axios({
+                        method: 'delete',
+                        url:"http://114.116.53.43/api/micropubs/"+id,
+                        headers:{
+                            'Cache-Control': 'no-cache',
+                            'Authorization':'Bearer '+window.localStorage["token"],
+                        },
+                    }).then(
+                        response=>{
+                            console.log(response)
+                            alert("删除成功");
+                            window.history.back(-1);
+                            //this.liked=!this.liked;
+                        } 
+                    ).catch(function (error) {
+                        if(error.response.status==400){
+                            if(!error.response.data.message){
+                                window.location.href="login.html?type=1";
+                                return;
+                            } 
+                        }
+                        else if(error.response==404){
+                            alert("该微猜想不存在或已被删除");
+                            window.history.back(-1);
+                        }
+                        else if(error.response.status==403){
+                            alert("您无权删除此猜想");
+                            window.history.back(-1);
+                        }
+                        console.log(error.response)
+                    }.bind(this))
+                }
+               
+            },
+            mounted(){
+                if(!window.localStorage["dark"]||window.localStorage["dark"]=="false"){
+                    this.darkmode=false;
+                }
+                else{
+                    this.darkmode=true;
+                }
+                document.querySelector('body').style.backgroundColor=this.styleobject.background;
+                document.querySelector('body').style.color=this.styleobject.content;
+                document.querySelector('body').style.backgroundImage=this.styleobject.bgpic;
+                document.querySelector('body').style.backgroundAttachment="fixed";
+                document.querySelector('body').style.backgroundSize='cover';
+                var id=this.getQueryVariable("id");
+                if(!id){
+                    alert("非法链接");
+                    window.history.back(-1);
+                }
+                this.getdata(id);
+                this.getcomment();
+            }
+        })
+    </script>
+    <link rel="stylesheet" type="text/css" href="static/css/header.css">
+    <link rel="stylesheet" type="text/css" href="static/css/main.css">
+    <style>
+        .middle{
+            margin-left: 5%;
+            width:70%;
+            height:auto;
+            display: inline-block;
+        }
+        .middle-header{
+            width:100%;
+            height:100px;
+            margin-bottom: 30px;
+            padding-left: 2%;
+            font-size: 20px;
+        }
+        .middle-body{
+            width:100%;
+            height:auto;
+            font-size: 15px;
+            padding:2%;
+            margin-bottom: 15px;
+        }
+        .comment{
+            width:100%;
+            height:auto;
+            font-size: 15px;
+            padding:2%;
+            margin: 0 auto;
+            margin-bottom: 15px;
+            border-radius: 15px;
+        }
+        .right{
+            width:20%;
+            margin-left: 3%;
+            height:200px;
+            display: inline-block;
+            vertical-align: top;
+          
+        }
+        .right-bar{
+            width:100%;
+            height:auto;
+            display:block;
+            padding: 2px;
+            margin-bottom: 15px;
+        }
+        a{
+            text-decoration:underline;
+        }
+        .avatar{
+            margin:0 auto;
+            display: block;
+            height:100px;
+            width:100px;
+            opacity: 1;
+        }
+    </style>
+</html>

@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"> 
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
+        <script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+        <script src="https://cdn.staticfile.org/popper.js/1.15.0/umd/popper.min.js"></script>
+        <script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <script src="https://cdn.staticfile.org/axios/0.18.0/axios.min.js"></script>
+        <title></title>
+    </head>
+    <body>
+        <div id='app'>
+            <!--粘性标题栏-->
+            <div class="container-fluid header" v-bind:style="{'background-color':this.styleobject.front}">
+                <!--img src="static/img/guard.png" style="height:60px;width:60px; margin:5px;"-->
+                <div class="header-content" style="display:inline-block;">用户信息</div>
+                <button  v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"  style="float:right;height:100%;" v-on:click="switchtheme">切换主题</button>
+            </div>
+
+            <!--主体-->
+            <div class="container-fluid" style="margin-top:30px;">
+                <!--头部-->
+                <div class="top main" v-bind:style="{'background-color':this.styleobject.front}">
+                    <img v-bind:src="userinfo.avatar?userinfo.avatar:'static/img/avater.jpg'" style="width: 170px;width:170px;margin-top: 25px;">
+                    <div class='top-name'>
+                        <h1>{{userinfo.username}}<span style="font-size: 20px;"></span>
+                            <h3>
+                                <span v-if="userinfo.valid" class="badge badge-primary">已认证</span>
+                                <span v-if="userinfo.valid&&userinfo.administrator"class="badge badge-warning">管理员</span>
+                                <span v-if="userinfo.valid&&userinfo.forbidden" class="badge badge-danger">封禁中</span>
+                            </h3>
+                            <!--
+                            <span v-bind:class="{badge:true,'badge-pill':true,'badge-primary':!this.darkmode,'badge-success':this.darkmode}">计算机体系结构</span>
+                            <span v-bind:class="{badge:true,'badge-pill':true,'badge-primary':!this.darkmode,'badge-success':this.darkmode}">IEEE</span>
+                            -->
+                        </h1>
+                        
+                    </div>
+                    <div class='top-statistic'>
+                        <table style="width:100%;text-align:center;" >
+                            <thead>
+                                <th>关注Ta</th>
+                                <th>Ta关注</th>
+                            </thead>
+                            <tbody><tr>
+                                
+                                <td>{{userinfo.followed}}</td>
+                                <td>{{userinfo.following}}</td>
+                            </tr></tbody>
+                        </table>
+                        <button type="button" v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"
+                        style="width: 100%; margin-bottom: 3px;" v-on:click="followbuttonclick">{{userinfo.following?'取消关注':'关注Ta'}}</button>
+                        <button type="button" v-bind:class="{btn:true,'btn-outline-primary':!darkmode,'btn-outline-success':darkmode}"
+                        style="width: 100%;">向Ta发站内信</button>
+                    </div>
+                   
+                </div>
+                <!--中部-->
+                <div class="middle">
+                    <div class="main middle-body" v-bind:style="{'background-color':this.styleobject.front,'font-size':'20px','text-align':'center'}">Ta的动态</div>
+                    <!--动态模板：关注了某位用户-->
+                    <div class='mycard' v-bind:style="{'background-color':this.styleobject.front,}">
+                        <h5>Ta关注了用户 李四@xxxxxx</h5>
+                        1991-12-25
+                        <hr v-bind:style="{border:'1px solid '+this.styleobject.content,margin:'3px'}">
+                    </div>
+                    <!--模板：评论了某个微猜想/微证据-->
+                    <div class='mycard' v-bind:style="{'background-color':this.styleobject.front,}">
+                        <h5>Ta评论了微猜想 我室友是傻逼</h5>
+                        1991-12-25
+                        <hr v-bind:style="{border:'1px solid '+this.styleobject.content,margin:'3px'}">
+                        <div class="mycard-content">
+                            十五字真言十五字真言十五字真言十五字真言十五字真言十五字真言十五字真言十五字真言
+                            十五字真言十五字真言十五字真言十五字真言十五字真言十五字真言十五字真言十五字真言
+                            十五字真言十五字真言十五字真言十五字真言十五字真言十五字真言十五字真言十五字真言
+                            十五字真言十五字真言十五字真言十五字真言十五字真言十五字真言十五字真言十五字真言
+                        </div>
+                    </div>
+                    <!--模板：提出了某个微猜想/微证据-->
+                    <div class=' mycard' v-bind:style="{'background-color':this.styleobject.front,}">
+                        <h5>Ta提出了微猜想 我室友是傻逼</h5>
+                        1991-12-25
+                        <hr v-bind:style="{border:'1px solid '+this.styleobject.content,margin:'3px'}">
+                        <div class="mycard-content">
+                            我室友是傻逼我室友是傻逼我室友是傻逼我室友是傻逼我室友是傻逼我室友是傻逼我室友是傻逼
+                            我室友是傻逼我室友是傻逼我室友是傻逼我室友是傻逼我室友是傻逼我室友是傻逼我室友是傻逼
+                            我室友是傻逼我室友是傻逼我室友是傻逼我室友是傻逼我室友是傻逼我室友是傻逼我室友是傻逼
+                            我室友是傻逼我室友是傻逼我室友是傻逼我室友是傻逼我室友是傻逼我室友是傻逼我室友是傻逼
+                            我室友是傻逼我室友是傻逼我室友是傻逼我室友是傻逼我室友是傻逼我室友是傻逼我室友是傻逼
+                            我室友是傻逼我室友是傻逼我室友是傻逼我室友是傻逼我室友是傻逼我室友是傻逼我室友是傻逼
+                        </div>
+                    </div>
+                    <!--模板：肯定/否定了某个微猜想/微证据-->
+                    <div class=' mycard' v-bind:style="{'background-color':this.styleobject.front,}">
+                        <h5>Ta肯定了微猜想 我室友是傻逼</h5>
+                        1991-12-25
+                        <hr v-bind:style="{border:'1px solid '+this.styleobject.content,margin:'3px'}">
+                        <div class="mycard-content">
+                            我室友是傻逼我室友是傻逼我室友是傻逼我室友是傻逼我室友是傻逼我室友是傻逼我室友是傻逼
+                            我室友是傻逼我室友是傻逼我室友是傻逼我室友是傻逼我室友是傻逼我室友是傻逼我室友是傻逼
+                            我室友是傻逼我室友是傻逼我室友是傻逼我室友是傻逼我室友是傻逼我室友是傻逼我室友是傻逼
+                        </div>
+                    </div>
+
+                    <div class="main middle-body" v-bind:style="{'background-color':this.styleobject.front,'text-align':'center',margin:'0 auto'}">点击加载更多</div>
+                </div>
+                <!--右侧-->
+                <div class="right">
+                    <div class="main right-bar" v-bind:style="{'background-color':this.styleobject.front}">
+                        <span style="font-size:20px;">个人信息</span>
+                        <hr v-bind:style="{border:'1px solid '+this.styleobject.content,margin:'3px'}">
+                        <table style="width:100%" style="text-align: center;">
+                            <thead>
+                                <th style="text-align: center;">发布的微知识</th>
+                                <th style="text-align: center;">关注的微知识</th>
+                            </thead>
+                            <tbody><tr>
+                                <td style="text-align: center;">{{userinfo.micropub}}</td>
+                                <td style="text-align: center;">{{userinfo.followedpubs}}</td>
+                            </tr></tbody>
+                        </table>
+                        
+                        邮箱:{{userinfo.email}}<br>
+                        <!--
+                        个人主页:xxxxxxxxxx.com<br>
+                        住址:xxxxxxxxxxxxxx<br>
+                        职业:xxxxxxxxxxxxxxx<br>
+                        -->
+                        注册时间:{{userinfo.registerdate}}<br>
+                        <div style="height: 5px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    <script>
+        var app=new Vue({
+            el:"#app",
+            data:{
+                //主题颜色配置
+                darkmode:false,
+                lightcolor:{
+                    front:"white",
+                    background:"#f6f6f6",
+                    content:"rgb(0,128,255)",
+                    alert:"alert alert-primary",
+                    alerterror:'alert alert-danger',
+                    bgpic:"url('static/img/bg.png')"
+                },
+                darkcolor:{
+                    //front:"#282561",
+                    front:"#3e3e3e",
+                    background:"black",
+                    content:"#28a745",
+                    alert:"alert alert-success",
+                    alerterror:'alert alert-danger',
+                    bgpic:"url('static/img/bgdark.png')"
+                },
+                //个人信息
+                userinfo:{},
+            },
+            computed:{
+                styleobject:function(){
+                    if(this.darkmode){
+                        return this.darkcolor;
+                    }
+                    else{
+                        return this.lightcolor;
+                    }
+                },  
+            },
+            methods:{
+                switchtheme:function(){
+                    this.darkmode=!this.darkmode;
+                    document.querySelector('body').style.backgroundColor=this.styleobject.background;
+                    document.querySelector('body').style.color=this.styleobject.content;
+                    document.querySelector('body').style.backgroundImage=this.styleobject.bgpic;
+                    window.localStorage["dark"]=this.darkmode;
+                },
+                getQueryVariable:function (variable){
+                    var query = window.location.search.substring(1);
+                    var vars = query.split("&");
+                    for (var i=0;i<vars.length;i++) {
+                        var pair = vars[i].split("=");
+                        if(pair[0] == variable){return pair[1];}
+                    }
+                    return(false);
+                },
+                //获取我的信息展示右侧栏
+                getuserinfo:function(){
+                    if(!window.localStorage["token"]){
+                        return;
+                    }
+                    var target=this.getQueryVariable("id");
+                    axios({
+                        method: 'get',
+                        url:'http://114.116.53.43/api/users/'+target,
+                        headers:{
+                            'Cache-Control': 'no-cache',
+                            'Authorization':'Bearer '+window.localStorage["token"],
+                        },
+                    }).then(
+                        response=>{
+                            console.log(response)
+                            this.userinfo={
+                                valid:true,
+                                //account:'ussr',
+                                username:response.data.username,
+                                forbidden:false,
+                                administrator:false,
+                                micropub:response.data.micropubs_count,
+                                followed:response.data.followers_count,
+                                following:response.data.followeds_count,
+                                avatar:response.data._links.avatar,
+                                followedpubs:response.data.followeds_micropubs_count,
+                                registerdate:response.data.member_since.substring(0,10),
+                                email:response.data.email,
+                                following:response.data.is_following,
+                            }
+                        }
+                        
+                    ).catch(function (error) {
+                        if(error.response.status==400){
+                            if(!error.response.data.message){
+                                //没有message 是登录失败
+                                window.location.href="login.html?type=1"
+                            } 
+                        }
+                        if(error.response.status==404){
+                            alert("该用户不存在");
+                            window.history.back(-1);
+                        }
+                        console.log(error.response)
+                    }.bind(this));
+                },
+                unfollow:function(){
+                    var x=this.getQueryVariable("id");
+                    axios({
+                        method: 'get',
+                        url:'http://114.116.53.43/api/unfollow/'+x,
+                        headers:{
+                            'Cache-Control': 'no-cache',
+                            'Authorization':'Bearer '+window.localStorage["token"],
+                        },
+                    }).then(
+                        response=>{
+                            alert("成功取消关注")
+                            console.log(response);
+                            window.location.reload();
+                        }
+                        
+                    ).catch(function (error) {
+                        console.log(error.response)
+                        if(error.response.status==400){
+                            if(!error.response.data.message){
+                                //没有message 是登录失败
+                                window.location.href="login.html?type=1"
+                            } 
+                            else if(error.response.data.message=="You cannot unfollow yourself."){
+                                alert("错误：你不能取关你自己")
+                            }
+                        }
+                        else if(error.response.status==404){
+                            alert("取关对象不存在");
+                        }
+                    }.bind(this));
+                },
+                follow:function(){
+                    var x=this.getQueryVariable("id");
+                    axios({
+                        method: 'get',
+                        url:'http://114.116.53.43/api/follow/'+x,
+                        headers:{
+                            'Cache-Control': 'no-cache',
+                            'Authorization':'Bearer '+window.localStorage["token"],
+                        },
+                    }).then(
+                        response=>{
+                            alert("成功关注")
+                            console.log(response);
+                            window.location.reload();
+                        }
+                        
+                    ).catch(function (error) {
+                        console.log(error.response)
+                        if(error.response.status==400){
+                            if(!error.response.data.message){
+                                //没有message 是登录失败
+                                window.location.href="login.html?type=1"
+                            } 
+                            else if(error.response.data.message=="You cannot follow yourself."){
+                                alert("错误：你不能取关你自己")
+                            }
+                        }
+                        else if(error.response.status==404){
+                            alert("关注对象不存在");
+                        }
+                    }.bind(this));
+                },
+                followbuttonclick:function(){
+                    if(this.userinfo.followed){
+                        this.unfollow();
+                    }
+                    else{
+                        this.follow();
+                    }
+                }
+            },
+            mounted(){
+                if(!window.localStorage["dark"]||window.localStorage["dark"]=="false"){
+                    this.darkmode=false;
+                }
+                else{
+                    this.darkmode=true;
+                }
+                document.querySelector('body').style.backgroundColor=this.styleobject.background;
+                document.querySelector('body').style.color=this.styleobject.content;
+                document.querySelector('body').style.backgroundImage=this.styleobject.bgpic;
+                document.querySelector('body').style.backgroundAttachment="fixed";
+                document.querySelector('body').style.backgroundSize='cover';
+                if(this.getQueryVariable("id")==window.localStorage["id"]){
+                    window.location.href="usercenter.html"
+                }
+                this.getuserinfo();
+            }
+        })
+    </script>
+    <link rel="stylesheet" type="text/css" href="static/css/header.css">
+    <link rel="stylesheet" type="text/css" href="static/css/main.css">
+    <style>
+        .top{
+            width:100%;
+            height:200px;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            margin-bottom: 15px;
+        }
+        .top-name{
+            display: inline-block;
+            vertical-align: top;
+            margin-top: 65px;
+        }
+        .top-statistic{
+            vertical-align: top;
+            margin-top: 50px;
+            float: right;
+            font-size: 20px;
+        }
+        .middle{
+            width:70%;
+            height:auto;
+            display: inline-block;
+            opacity: 0.8;
+        }
+        .middle-body{
+            display: block;
+            width:95%;
+            height:auto;
+            font-size: 15px;
+            padding:2%;
+            margin:0 auto;
+            margin-bottom: 15px;
+            box-shadow:0 1px 3px rgba(26,26,26,.5);
+        }
+        .right{
+            width:25%;
+            margin-left: 4%;
+            height:200px;
+            display: inline-block;
+            vertical-align: top;
+            opacity: 0.8;
+        }
+        .right-bar{
+            width:100%;
+            height:auto;
+            display:block;
+            padding: 2px;
+            margin-bottom: 15px;
+        }
+        .mycard{
+            display: block;
+            width:95%;
+            height: auto;
+            max-height: 150px;;
+            font-size: 15px;
+            padding:2%;
+            margin:0 auto;
+            margin-bottom: 15px;
+            border-radius: 15px;
+            box-shadow:0 1px 3px rgba(26,26,26,.5);
+        }
+        .mycard-content{
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 3;
+            overflow: hidden;
+        }
+        
+    </style>
+</html>

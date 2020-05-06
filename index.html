@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"> 
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
+        <script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+        <script src="https://cdn.staticfile.org/popper.js/1.15.0/umd/popper.min.js"></script>
+        <script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <script src="https://cdn.staticfile.org/axios/0.18.0/axios.min.js"></script>
+        <title></title>
+    </head>
+    <body>
+        <!--body的属性使用的是jquery在mount中配置-->
+        <div id='app'>
+            <!--粘性标题栏-->
+            <div class="container-fluid header" v-bind:style="{'background-color':styleobject.front}">
+                <!--img src="static/img/guard.png" style="height:60px;width:60px; margin:5px;"-->
+                <div class="header-content" style="display:inline-block;">首页</div>
+                <button  v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"  style="float:right;height:100%;" v-on:click="switchtheme">切换主题</button>
+                <div style="float: right;width:40%;margin-top: 20px;">
+                        <input class="form-control" v-bind:style="{display:'inline-block',width:'80%','background-color':styleobject.front,color:styleobject.content}" >
+                        <button  v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"
+                        style="vertical-align:bottom;">搜索</button>
+                    </div>
+            </div>
+            <!--主体-->
+            <div class="container-fluid" style="margin-top:30px;vertical-align: top;">
+                <!--左侧悬浮标题栏-->
+                <div style="width:14%;display:inline-block;vertical-align: top;">
+                    <div class="main left" v-bind:style="{'background-color':styleobject.front,}">
+                        <button v-bind:class="{btn:true,leftbutton:true,'btn-primary':!darkmode,'btn-success':darkmode}"
+                        v-bind:style="{'border-left':mode==0?'5px solid gray':'none',
+                                    'border-right':mode==0?'5px solid gray':'none',
+                                    'border-radius':mode==0?'0':'.25rem'}"
+                        v-on:click="changemode(0)">微证据热榜</button>
+                        <button v-bind:class="{btn:true,leftbutton:true,'btn-primary':!darkmode,'btn-success':darkmode}"
+                        v-bind:style="{'border-left':mode==1?'5px solid gray':'none',
+                                    'border-right':mode==1?'5px solid gray':'none',
+                                    'border-radius':mode==1?'0':'.25rem'}"
+                        v-on:click="changemode(1)">微猜想热榜</button>
+                        <button v-bind:class="{btn:true,leftbutton:true,'btn-primary':!darkmode,'btn-success':darkmode}"
+                        v-bind:style="{'border-left':mode==2?'5px solid gray':'none',
+                                    'border-right':mode==2?'5px solid gray':'none',
+                                    'border-radius':mode==2?'0':'.25rem'}"
+                        v-on:click="changemode(2)">微知识热榜</button>
+                        <button v-bind:class="{btn:true,leftbutton:true,'btn-primary':!darkmode,'btn-success':darkmode}"
+                        v-bind:style="{'border-left':mode==3?'5px solid gray':'none',
+                                    'border-right':mode==3?'5px solid gray':'none',
+                                    'border-radius':mode==3?'0':'.25rem'}"
+                        v-on:click="changemode(3)">微证据推荐</button>
+                        <button v-bind:class="{btn:true,leftbutton:true,'btn-primary':!darkmode,'btn-success':darkmode}"
+                        v-bind:style="{'border-left':mode==4?'5px solid gray':'none',
+                                    'border-right':mode==4?'5px solid gray':'none',
+                                    'border-radius':mode==4?'0':'.25rem'}"
+                        v-on:click="changemode(4)">微猜想推荐</button>
+                        <button v-bind:class="{btn:true,leftbutton:true,'btn-primary':!darkmode,'btn-success':darkmode}"
+                        v-bind:style="{'border-left':mode==5?'5px solid gray':'none',
+                                    'border-right':mode==5?'5px solid gray':'none',
+                                    'border-radius':mode==5?'0':'.25rem'}"
+                        v-on:click="changemode(5)">微知识推荐</button>
+                        <button v-bind:class="{btn:true,leftbutton:true,'btn-primary':!darkmode,'btn-success':darkmode}"
+                        v-bind:style="{'border-left':mode==6?'5px solid gray':'none',
+                                    'border-right':mode==6?'5px solid gray':'none',
+                                    'border-radius':mode==6?'0':'.25rem'}"
+                        v-on:click="changemode(6)">关注动态</button>
+                    </div>
+                </div>
+
+                <!--中部内容-->
+                <div class="middle" >
+                    <!--渲染核心条目-->
+                    <template v-for="item in maindata">
+                        <div class="item card">
+                            <div v-bind:class="styleobject.itemheaderclass">{{item.header}}
+                                <span v-for="badge in item.badges" class="badge badge-pill badge-info mybadge">{{badge}}</span>
+                                <span v-if="item.hot" class="badge badge-danger mybadge">HOT</span>
+                            </div>
+                            <div v-bind:class="styleobject.itembodyclass">{{item.content}}</div>
+                        </div>
+                    </template> 
+                    <div class="main"  v-bind:style="{'background-color':styleobject.front,'width':'100%', height:'40px', 'text-align':'center', 'font-size':'15px', 'padding':'7px'}"
+                    v-on:click="moreitem()">点击加载更多</div>
+                    <div style="height:40px;"></div>
+                    
+                </div>
+
+                <!--右侧个人信息界面-->
+                <div class="right">
+                    <div class="main rightbar" v-bind:style="{'background-color':styleobject.front,'text-align': 'center'}">
+                        <img v-bind:src="this.userinfo.avatar?this.userinfo.avatar:'static/img/avater.jpg'" class="avatar">
+                        <hr v-bind:style="{border:'1px solid '+styleobject.content,margin:'2px'}">
+                        你好,{{userinfo.valid?userinfo.username:'游客'}}<br>
+                        <span v-if="userinfo.valid" class="badge badge-primary">已注册</span>
+                        <span v-if="userinfo.valid&&userinfo.administrator"class="badge badge-warning">管理员</span>
+                        <span v-if="userinfo.valid&&userinfo.forbidden" class="badge badge-danger">封禁中</span>
+                        <table style="width:100%" v-if="userinfo.valid">
+                            <thead>
+                                <th>微知识</th>
+                                <th>关注Ta</th>
+                                <th>Ta关注</th>
+                            </thead>
+                            <tbody><tr>
+                                <td>{{userinfo.micropub}}</td>
+                                <td>{{userinfo.followed}}</td>
+                                <td>{{userinfo.following}}</td>
+                            </tr></tbody>
+                        </table>
+                        <div style="height:5px"></div>
+                        <div class="btn-group-vertical" style="display: block;width:90%;margin: 0 auto;">
+                            <button v-if="userinfo.valid" v-bind:class="{btn:true,'btn-outline-primary':!darkmode,'btn-outline-success':darkmode}" onclick="window.location.href='evidence_create.html'">创建微证据</button>
+
+                            <button v-if="userinfo.valid" v-bind:class="{btn:true,'btn-outline-primary':!darkmode,'btn-outline-success':darkmode}" onclick="window.location.href='hypothesis_create.html'">创建微猜想</button>
+
+                            <button v-if="userinfo.valid" v-bind:class="{btn:true,'btn-outline-primary':!darkmode,'btn-outline-success':darkmode}" onclick="window.location.href='message.html'">我的站内信</button>
+
+                            <button v-if="userinfo.valid" v-bind:class="{btn:true,'btn-outline-primary':!darkmode,'btn-outline-success':darkmode}" onclick="window.location.href='usercenter.html'">个人中心</button>
+
+                            <button v-if="userinfo.valid" v-bind:class="{btn:true,'btn-outline-primary':!darkmode,'btn-outline-success':darkmode}"
+                            v-on:click="logout">登出</button>
+
+                            <button v-if="!userinfo.valid" v-bind:class="{btn:true,'btn-outline-primary':!darkmode,'btn-outline-success':darkmode}" onclick="window.location.href='login.html?type=1'">登录</button>
+
+                        </div>
+                        <div style="height:5px"></div>
+                    </div>
+                </div>
+                <!---->
+                
+            </div>
+        </div>
+    </body>
+    <script>
+        var app=new Vue({
+            el:"#app",
+            data:{
+                //主题颜色配置
+                darkmode:false,
+                lightcolor:{
+                    front:"white",
+                    background:"#f6f6f6",
+                    content:"rgb(0,128,255)",
+                    alert:"alert alert-primary",
+                    alerterror:'alert alert-danger',
+                    bgpic:"url('static/img/bg.png')",
+                    itembodyclass:['item-body'],
+                    itemheaderclass:['item-header','bg-primary','text-white'],
+                },
+                darkcolor:{
+                    //front:"#282561",
+                    front:"#3e3e3e",
+                    background:"black",
+                    content:"rgb(40,167,69)",
+                    alert:"alert alert-success",
+                    alerterror:'alert alert-danger',
+                    bgpic:"url('static/img/bgdark.png')",
+                    itembodyclass:['item-body','bg-dark'],
+                    itemheaderclass:['item-header','bg-success','text-white'],
+                },
+                //当前是哪一类页面 从微证据热榜到关注动态依次是0-6
+                mode:0,
+                //要渲染的数据
+                maindata:[],
+                userinfo:{valid:false},
+            },
+            computed:{
+                styleobject:function(){
+                    if(this.darkmode){
+                        return this.darkcolor;
+                    }
+                    else{
+                        return this.lightcolor;
+                    }
+                },  
+            },
+            methods:{
+                switchtheme:function(){
+                    this.darkmode=!this.darkmode;
+                    document.querySelector('body').style.backgroundColor=this.styleobject.background;
+                    document.querySelector('body').style.color=this.styleobject.content;
+                    document.querySelector('body').style.backgroundImage=this.styleobject.bgpic;
+                    window.localStorage["dark"]=this.darkmode;
+                },
+                //切换模式
+                changemode:function(x){
+                    this.mode=x;
+                    this.maindata.splice(0,this.maindata.length);
+                    this.moreitem();
+                },
+                //加载更多
+                moreitem:function(){
+                    //记住页面位置
+                    var tmp=document.documentElement.scrollTop
+                    this.getmaindata();
+                    //DOM更新完成之后再跳回到原来的位置
+                    this.$nextTick(()=>{document.documentElement.scrollTop=tmp;})
+                },
+                //渲染数据
+                getmaindata:function(){
+                    //TODO:AJAX
+                    var n=this.maindata.length;
+                    for(var i=n;i<n+10;i++){
+                        this.maindata.push({
+                            'header':this.mode+'header'+i,
+                            'badges':['计算机体系结构','IEEE'],
+                            'hot':true,
+                            'content':'这里是条目内容这里是条目内容',
+                            'id':i
+                        })
+                    }
+                },
+                //获取用户信息
+                getuserinfo:function(){
+                    if(!window.localStorage["token"]){
+                        return;
+                    }
+                    axios({
+                        method: 'get',
+                        url:'http://114.116.53.43/api/users/'+window.localStorage["id"],
+                        headers:{
+                            'Cache-Control': 'no-cache',
+                            'Authorization':'Bearer '+window.localStorage["token"],
+                        },
+                    }).then(
+                        response=>{
+                            console.log(response)
+                            this.userinfo={
+                                valid:true,
+                                //account:'ussr',
+                                username:response.data.username,
+                                forbidden:false,
+                                administrator:false,
+                                micropub:response.data.micropubs_count,
+                                followed:response.data.followers_count,
+                                following:response.data.followeds_count,
+                                avatar:response.data._links.avatar,
+                            }
+                        }
+                        
+                    ).catch(function (error) {
+                        if(error.response.status==404){
+                            alert("发生错误");
+                            window.href.location="login.html";
+                        }
+                        console.log(error.response)
+                    }.bind(this));
+                },
+                logout:function(){
+                    window.localStorage["token"]="";
+                    window.localStorage["id"]=""
+                    this.userinfo={valid:false};
+                }
+               
+            },
+            mounted(){
+                if(!window.localStorage["dark"]||window.localStorage["dark"]=="false"){
+                    this.darkmode=false;
+                }
+                else{
+                    this.darkmode=true;
+                }
+                //挂载背景图
+                document.querySelector('body').style.backgroundColor=this.styleobject.background;
+                document.querySelector('body').style.color=this.styleobject.content;
+                document.querySelector('body').style.backgroundImage=this.styleobject.bgpic;
+                document.querySelector('body').style.backgroundAttachment="fixed";
+                document.querySelector('body').style.backgroundSize='cover';
+                window.onpageshow=event=>{this.getmaindata();this.getuserinfo();}                
+                //debugger
+                this.getmaindata();
+                this.getuserinfo();
+            }
+        })
+    </script>
+    <link rel="stylesheet" type="text/css" href="static/css/header.css">
+    <link rel="stylesheet" type="text/css" href="static/css/main.css">
+    <style>
+        .left{
+            width:14%;
+            height:auto;
+            margin-top:20px;
+            padding-top:15px;
+            padding-bottom:15px;
+            display:inline-block;
+            position:fixed;
+            left:0;
+            vertical-align: top;
+        }
+        .middle{
+            width:60%;
+            height:auto;
+            margin:0 auto;
+            display:inline-block;
+            margin-left:2%;
+            opacity:0.9;
+        }
+        .right{
+            width:20%;
+            height:100%;
+            margin:0 auto;
+            display:inline-block;
+            margin-left:2%;
+            opacity:0.9;
+            vertical-align: top;
+            padding:0;
+        }
+        .rightbar{
+            width:100%;
+            height:auto;
+            box-shadow:0 1px 3px rgba(26,26,26,.5);
+            padding-top:10px;
+            display: block;
+        }
+        .leftbutton{
+            width:95%;
+            margin:2px;
+            outline:none;
+        }
+        .item{
+            width:100%;
+            margin:0px auto;
+            box-shadow:0 1px 3px rgba(26,26,26,.3);
+            display: block;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            border:none;
+        }
+        .item-header{
+            height:auto;
+            font-size:25px;
+            padding:3px;
+            overflow: hidden;
+            padding-left: 1.25rem;
+        }
+        .item-body{
+            height:70px;
+            padding-left: 1.25rem;
+            padding-right: 1.25rem;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 3;
+            overflow: hidden;
+            font-size: 15px;
+        }
+        .avatar{
+            margin:0 auto;
+            display: block;
+            height:100px;
+            width:100px;
+            opacity: 1;
+        }
+        .mybadge{
+            font-size: 15px;
+            vertical-align: middle;
+        }
+    </style>
+</html>
