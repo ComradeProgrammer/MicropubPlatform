@@ -47,7 +47,7 @@
                                 <div v-bind:class="styleobject.itembodyclass">{{evidence.content}}</div>
                             </div>
                         </template>
-                        <div class="main middle-body" v-bind:style="{'background-color':this.styleobject.front,'text-align':'center',width:'100%',margin:'0 auto','cursor':'pointer'}" v-on:click="getevidences">
+                        <div class="main middle-body" v-bind:style="{'background-color':styleobject.front,'text-align':'center',width:'100%',margin:'0 auto','cursor':'pointer'}" v-on:click="getevidences">
                             {{hasnext?'点击加载更多':'已经没有更多了'}}
                         </div>
                     </template>
@@ -69,7 +69,7 @@
                                 </div>
                             </div>
                         </template>
-                        <div class="main middle-body" v-bind:style="{'background-color':this.styleobject.front,'text-align':'center',width:'100%',margin:'0 auto','cursor':'pointer'}" v-on:click="getfollowing">
+                        <div class="main middle-body" v-bind:style="{'background-color':styleobject.front,'text-align':'center',width:'100%',margin:'0 auto','cursor':'pointer'}" v-on:click="getfollowing">
                             {{hasnext?'点击加载更多':'已经没有更多了'}}
                         </div>
                     </template>
@@ -88,7 +88,7 @@
                                 </div>
                             </div>
                         </template>
-                        <div class="main middle-body" v-bind:style="{'background-color':this.styleobject.front,'text-align':'center',width:'100%',margin:'0 auto','cursor':'pointer'}" v-on:click="getfollowing">
+                        <div class="main middle-body" v-bind:style="{'background-color':styleobject.front,'text-align':'center',width:'100%',margin:'0 auto','cursor':'pointer'}" v-on:click="getfollowing">
                             {{hasnext?'点击加载更多':'已经没有更多了'}}
                         </div>
                     </template>
@@ -115,7 +115,7 @@
                 </div>
                 <div class=" right">
                     <div class="right-bar" v-bind:style="{'background-color':styleobject.front,'text-align': 'center'}">
-                        <img v-bind:src="this.userinfo.avatar?this.userinfo.avatar:'static/img/avater.jpg'" class="avatar">
+                        <img v-bind:src="userinfo.avatar?userinfo.avatar:'static/img/avater.jpg'" class="avatar">
                         <hr v-bind:style="{border:'1px solid '+styleobject.content,margin:'2px'}">
                         你好，{{userinfo.username}}<br>
                         <span v-if="userinfo.valid" class="badge badge-primary">已认证</span>

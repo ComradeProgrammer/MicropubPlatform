@@ -13,15 +13,15 @@
     <body>
         <div id='app'>
             <!--粘性标题栏-->
-            <div class="container-fluid header" v-bind:style="{'background-color':this.styleobject.front}">
+            <div class="container-fluid header" v-bind:style="{'background-color':styleobject.front}">
                 <!--img src="static/img/guard.png" style="height:60px;width:60px; margin:5px;"-->
                 <div class="header-content" style="display:inline-block;">微猜想管理</div>
                 <button  v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"  style="float:right;height:100%;" v-on:click="switchtheme">切换主题</button>
             </div>
             <!--主体-->
             <div class="container-fluid" style="margin-top:30px;">
-                <div class="main middle" v-bind:style="{'background-color':this.styleobject.front}">
-                    <table v-bind:class="{table:true,'table-dark':this.darkmode}" v-bind:style="{'background-color':this.styleobject.front}">
+                <div class="main middle" v-bind:style="{'background-color':styleobject.front}">
+                    <table v-bind:class="{table:true,'table-dark':darkmode}" v-bind:style="{'background-color':styleobject.front}">
                         <thead>
                             <tr>
                               <th>时间</th>

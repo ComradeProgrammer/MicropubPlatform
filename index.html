@@ -89,7 +89,7 @@
                 <!--右侧个人信息界面-->
                 <div class="right">
                     <div class="main rightbar" v-bind:style="{'background-color':styleobject.front,'text-align': 'center'}">
-                        <img v-bind:src="this.userinfo.avatar?this.userinfo.avatar:'static/img/avater.jpg'" class="avatar">
+                        <img v-bind:src="userinfo.avatar?userinfo.avatar:'static/img/avater.jpg'" class="avatar">
                         <hr v-bind:style="{border:'1px solid '+styleobject.content,margin:'2px'}">
                         你好,{{userinfo.valid?userinfo.username:'游客'}}<br>
                         <span v-if="userinfo.valid" class="badge badge-primary">已注册</span>

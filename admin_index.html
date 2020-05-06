@@ -13,21 +13,21 @@
     <body>
         <div id='app'>
             <!--粘性标题栏-->
-            <div class="container-fluid header" v-bind:style="{'background-color':this.styleobject.front}">
+            <div class="container-fluid header" v-bind:style="{'background-color':styleobject.front}">
                 <!--img src="static/img/guard.png" style="height:60px;width:60px; margin:5px;"-->
                 <div class="header-content" style="display:inline-block;">管理员面板</div>
                 <button  v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"  style="float:right;height:100%;" v-on:click="switchtheme">切换主题</button>
             </div>
             <!--主体-->
             <div class="container-fluid" style="margin-top:30px;">
-                <div class="main item" v-bind:style="{'background-color':this.styleobject.front,
-                'border-left':'5px solid '+this.styleobject.content}"><span class="item-content">微证据管理</span></div>
-                <div class="main item" v-bind:style="{'background-color':this.styleobject.front,
-                'border-left':'5px solid '+this.styleobject.content}"><span class="item-content">微猜想管理</span></div>
-                <div class="main item" v-bind:style="{'background-color':this.styleobject.front,
-                'border-left':'5px solid '+this.styleobject.content}"><span class="item-content">禁言管理</span></div>
-                <div class="main item" v-bind:style="{'background-color':this.styleobject.front,
-                'border-left':'5px solid '+this.styleobject.content}"><span class="item-content">管理员授权</span></div>
+                <div class="main item" v-bind:style="{'background-color':styleobject.front,
+                'border-left':'5px solid '+styleobject.content}"><span class="item-content">微证据管理</span></div>
+                <div class="main item" v-bind:style="{'background-color':styleobject.front,
+                'border-left':'5px solid '+styleobject.content}"><span class="item-content">微猜想管理</span></div>
+                <div class="main item" v-bind:style="{'background-color':styleobject.front,
+                'border-left':'5px solid '+styleobject.content}"><span class="item-content">禁言管理</span></div>
+                <div class="main item" v-bind:style="{'background-color':styleobject.front,
+                'border-left':'5px solid '+styleobject.content}"><span class="item-content">管理员授权</span></div>
             </div>
         </div>
     </body>

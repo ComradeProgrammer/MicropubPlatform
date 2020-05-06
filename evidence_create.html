@@ -14,22 +14,22 @@
     <body>
         <div id='app'>
             <!--粘性标题栏-->
-            <div class="container-fluid header" v-bind:style="{'background-color':this.styleobject.front}">
+            <div class="container-fluid header" v-bind:style="{'background-color':styleobject.front}">
                 <!--img src="static/img/guard.png" style="height:60px;width:60px; margin:5px;"-->
                 <div class="header-content" style="display:inline-block;">微证据{{type?'修改':'创建'}}</div>
                 <button  v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"  style="float:right;height:100%;" v-on:click="switchtheme">切换主题</button>
             </div>
             <!--主体-->
             <div class="container-fluid" style="margin-top:30px;">
-                <div class="main middle" v-bind:style="{'background-color':this.styleobject.front}">
+                <div class="main middle" v-bind:style="{'background-color':styleobject.front}">
                     <div style="width:80%;font-size: 20px;margin:0 auto">
                         <label>微证据标题</label>
-                        <input type="input" class="form-control" v-bind:style="{'background-color':this.styleobject.front,color:this.styleobject.content}" v-model="header">
+                        <input type="input" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content}" v-model="header">
                         <label>微证据内容</label>
-                        <textarea type="input" class="form-control" v-bind:style="{'background-color':this.styleobject.front,color:this.styleobject.content,height:'150px'}" v-model="content"></textarea>
+                        <textarea type="input" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content,height:'150px'}" v-model="content"></textarea>
                         <!--
                         <label>微证据引用</label>
-                        <textarea type="input" class="form-control" v-bind:style="{'background-color':this.styleobject.front,color:this.styleobject.content,height:'100px'}" placeholder="请在此输入框输入所引用内容来源的链接，如有多个链接中间用空格分隔"></textarea>
+                        <textarea type="input" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content,height:'100px'}" placeholder="请在此输入框输入所引用内容来源的链接，如有多个链接中间用空格分隔"></textarea>
                         -->
                         <button type="button" v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}" style="margin:0 auto;margin-top:10px;width:100%" v-on:click="submit">提交</button><br>
                         <div style="height:50px"></div>

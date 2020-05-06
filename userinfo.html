@@ -14,7 +14,7 @@
     <body>
         <div id='app'>
             <!--粘性标题栏-->
-            <div class="container-fluid header" v-bind:style="{'background-color':this.styleobject.front}">
+            <div class="container-fluid header" v-bind:style="{'background-color':styleobject.front}">
                 <!--img src="static/img/guard.png" style="height:60px;width:60px; margin:5px;"-->
                 <div class="header-content" style="display:inline-block;">用户信息</div>
                 <button  v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"  style="float:right;height:100%;" v-on:click="switchtheme">切换主题</button>
@@ -23,7 +23,7 @@
             <!--主体-->
             <div class="container-fluid" style="margin-top:30px;">
                 <!--头部-->
-                <div class="top main" v-bind:style="{'background-color':this.styleobject.front}">
+                <div class="top main" v-bind:style="{'background-color':styleobject.front}">
                     <img v-bind:src="userinfo.avatar?userinfo.avatar:'static/img/avater.jpg'" style="width: 170px;width:170px;margin-top: 25px;">
                     <div class='top-name'>
                         <h1>{{userinfo.username}}<span style="font-size: 20px;"></span>
@@ -33,8 +33,8 @@
                                 <span v-if="userinfo.valid&&userinfo.forbidden" class="badge badge-danger">封禁中</span>
                             </h3>
                             <!--
-                            <span v-bind:class="{badge:true,'badge-pill':true,'badge-primary':!this.darkmode,'badge-success':this.darkmode}">计算机体系结构</span>
-                            <span v-bind:class="{badge:true,'badge-pill':true,'badge-primary':!this.darkmode,'badge-success':this.darkmode}">IEEE</span>
+                            <span v-bind:class="{badge:true,'badge-pill':true,'badge-primary':!darkmode,'badge-success':darkmode}">计算机体系结构</span>
+                            <span v-bind:class="{badge:true,'badge-pill':true,'badge-primary':!darkmode,'badge-success':darkmode}">IEEE</span>
                             -->
                         </h1>
                         
@@ -88,7 +88,7 @@
                                 <div v-bind:class="styleobject.itembodyclass">{{evidence.content}}</div>
                             </div>
                         </template>
-                        <div class="main middle-body" v-bind:style="{'background-color':this.styleobject.front,'text-align':'center',width:'95%',margin:'0 auto','cursor':'pointer'}" v-on:click="getevidences">
+                        <div class="main middle-body" v-bind:style="{'background-color':styleobject.front,'text-align':'center',width:'95%',margin:'0 auto','cursor':'pointer'}" v-on:click="getevidences">
                             {{hasnext?'点击加载更多':'已经没有更多了'}}
                         </div>
                     </template>
@@ -111,7 +111,7 @@
                                 </div>
                             </div>
                         </template>
-                        <div class="main middle-body" v-bind:style="{'background-color':this.styleobject.front,'text-align':'center',width:'100%',margin:'0 auto','cursor':'pointer'}" v-on:click="getfollowing">
+                        <div class="main middle-body" v-bind:style="{'background-color':styleobject.front,'text-align':'center',width:'100%',margin:'0 auto','cursor':'pointer'}" v-on:click="getfollowing">
                             {{hasnext?'点击加载更多':'已经没有更多了'}}
                         </div>
                         </div>
@@ -131,16 +131,16 @@
                                 </div>
                             </div>
                         </template>
-                        <div class="main middle-body" v-bind:style="{'background-color':this.styleobject.front,'text-align':'center',width:'96%',margin:'0 auto','cursor':'pointer'}" v-on:click="getfollowing">
+                        <div class="main middle-body" v-bind:style="{'background-color':styleobject.front,'text-align':'center',width:'96%',margin:'0 auto','cursor':'pointer'}" v-on:click="getfollowing">
                             {{hasnext?'点击加载更多':'已经没有更多了'}}
                         </div>
                     </template>
                 </div>
                 <!--右侧-->
                 <div class="right">
-                    <div class="main right-bar" v-bind:style="{'background-color':this.styleobject.front}">
+                    <div class="main right-bar" v-bind:style="{'background-color':styleobject.front}">
                         <span style="font-size:20px;">个人信息</span>
-                        <hr v-bind:style="{border:'1px solid '+this.styleobject.content,margin:'3px'}">
+                        <hr v-bind:style="{border:'1px solid '+styleobject.content,margin:'3px'}">
                         <table style="width:100%" style="text-align: center;">
                             <thead>
                                 <th style="text-align: center;">发布的微知识</th>

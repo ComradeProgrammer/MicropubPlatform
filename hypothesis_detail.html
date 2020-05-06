@@ -13,7 +13,7 @@
     <body>
         <div id='app'>
             <!--粘性标题栏-->
-            <div class="container-fluid header" v-bind:style="{'background-color':this.styleobject.front}">
+            <div class="container-fluid header" v-bind:style="{'background-color':styleobject.front}">
                 <!--img src="static/img/guard.png" style="height:60px;width:60px; margin:5px;"-->
                 <div class="header-content" style="display:inline-block;">微猜想详情</div>
                 <button  v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"  style="float:right;height:100%;" v-on:click="switchtheme">切换主题</button>
@@ -23,35 +23,35 @@
                 <!--左侧-->
                 <div class="middle">
                     <!--标题栏-->
-                    <div class="main middle-header" v-bind:style="{'background-color':this.styleobject.front}">
+                    <div class="main middle-header" v-bind:style="{'background-color':styleobject.front}">
                         <!--标签-->
                         <span v-for="topic in topics" style="margin-left:5px;"
                         v-bind:class="{badge:true,'badge-pill':true,'badge-primary':!darkmode,'badge-success':darkmode}">{{topic}}</span>
-                        <hr v-bind:style="{border:'1px solid '+this.styleobject.content,margin:'3px'}">
+                        <hr v-bind:style="{border:'1px solid '+styleobject.content,margin:'3px'}">
                         <!--标题-->
-                        <h3>{{this.header}} 
+                        <h3>{{header}} 
                             <span v-if="state==0" v-bind:class="{badge:true,'badge-warning':true}">评审中</span>
                             <span v-if="state==1" v-bind:class="{badge:true,'badge-danger':true}">未通过</span>
                             <span v-if="state==2" v-bind:class="{badge:true,'badge-success':true}">已通过</span>
                         </h3>
                     </div>
                     <!--内容-->
-                    <div class="main middle-body" v-bind:style="{'background-color':this.styleobject.front}">
-                        {{this.content}}
-                        <hr v-bind:style="{border:'1px solid '+this.styleobject.content,margin:'3px'}">
+                    <div class="main middle-body" v-bind:style="{'background-color':styleobject.front}">
+                        {{content}}
+                        <hr v-bind:style="{border:'1px solid '+styleobject.content,margin:'3px'}">
                         <div v-if="state==0" style="text-align:center;width:100%">
                             <button class="btn btn-danger">否定微猜想</button>
                             <div style="width:50%;display: inline-block;">
                                 <div class="progress" >
-                                    <div class="progress-bar bg-danger progress-bar-striped" v-bind:style="{width:100-this.probar+'%'}">{{this.con}}</div>
-                                    <div class="progress-bar bg-success progress-bar-striped" v-bind:style="{width:this.probar+'%'}">{{this.pro}}</div> 
+                                    <div class="progress-bar bg-danger progress-bar-striped" v-bind:style="{width:100-probar+'%'}">{{con}}</div>
+                                    <div class="progress-bar bg-success progress-bar-striped" v-bind:style="{width:probar+'%'}">{{pro}}</div> 
                                 </div>
                             </div>
                             <button class="btn btn-success">肯定微猜想</button>
                         </div>
                     </div>
                     <!--评论区-->
-                    <div class="main middle-body" v-bind:style="{'background-color':this.styleobject.front,'font-size':'20px'}">
+                    <div class="main middle-body" v-bind:style="{'background-color':styleobject.front,'font-size':'20px'}">
                         评论区
                     </div>
                     <div v-for="comment in comments" class="main comment" v-bind:style="{'background-color':styleobject.front}">
@@ -59,15 +59,15 @@
                         <div style="text-align: right;">发表于:{{comment.date}}<br></div>
                     </div>
 
-                    <div class="main middle-body" v-bind:style="{'background-color':this.styleobject.front,'text-align':'center',width:'100%',margin:'0 auto'}" v-on:click="morecomments()">
+                    <div class="main middle-body" v-bind:style="{'background-color':styleobject.front,'text-align':'center',width:'100%',margin:'0 auto'}" v-on:click="morecomments()">
                         点击加载更多
                     </div>
                 </div>
                 <!--右侧-->
                 <div class="right">
-                    <div class="main right-bar" v-bind:style="{'background-color':this.styleobject.front,'text-align':'center'}">
+                    <div class="main right-bar" v-bind:style="{'background-color':styleobject.front,'text-align':'center'}">
                         <strong>微猜想详情</strong><br>
-                        发表时间:{{this.date}}<br>
+                        发表时间:{{date}}<br>
                         <span v-if="state==0" v-bind:class="{badge:true,'badge-warning':true}">评审中</span>
                         <span v-if="state==1" v-bind:class="{badge:true,'badge-danger':true}">未通过</span>
                         <span v-if="state==2" v-bind:class="{badge:true,'badge-success':true}">已通过</span>
@@ -77,11 +77,11 @@
                                 <th style="color:#28a745">肯定</th>
                             </thead>
                             <tbody><tr>
-                                <td style="color:red">{{this.con}}</td>
-                                <td style="color:#28a745">{{this.pro}}</td>
+                                <td style="color:red">{{con}}</td>
+                                <td style="color:#28a745">{{pro}}</td>
                             </tr></tbody>
                         </table>
-                        <hr v-bind:style="{border:'1px solid '+this.styleobject.content,margin:'3px'}">
+                        <hr v-bind:style="{border:'1px solid '+styleobject.content,margin:'3px'}">
                         <table style="width:100%;text-align: center;" >
                             <thead>
                                 <th>点赞</th>
@@ -89,9 +89,9 @@
                                 <th>评论</th>
                             </thead>
                             <tbody><tr>
-                                <td>{{this.like}}</td>
-                                <td>{{this.collect}}</td>
-                                <td>{{this.remark}}</td>
+                                <td>{{like}}</td>
+                                <td>{{collect}}</td>
+                                <td>{{remark}}</td>
                             </tr></tbody>
                         </table>
                             <div class="btn-group" style="width:99%">
@@ -106,9 +106,9 @@
                                 <button v-bind:class="{btn:true,leftbutton:true,'btn-outline-primary':!darkmode,'btn-outline-success':darkmode}">评论</button>
                             </div>
                     </div>
-                    <div class="main right-bar" v-bind:style="{'background-color':this.styleobject.front,'text-align':'center'}">
+                    <div class="main right-bar" v-bind:style="{'background-color':styleobject.front,'text-align':'center'}">
                         <strong>作者详情</strong><br>
-                        {{this.userinfo.username}}<br>
+                        {{userinfo.username}}<br>
                         <a href="" style="font-size: 12px;">前往Ta的个人主页></a>
                         <img src="static/img/avater.jpg" class="avater">
                         <span v-if="userinfo.valid" class="badge badge-primary">已注册</span>

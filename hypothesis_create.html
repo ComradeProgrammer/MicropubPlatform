@@ -13,20 +13,20 @@
     <body>
         <div id='app'>
             <!--粘性标题栏-->
-            <div class="container-fluid header" v-bind:style="{'background-color':this.styleobject.front}">
+            <div class="container-fluid header" v-bind:style="{'background-color':styleobject.front}">
                 <!--img src="static/img/guard.png" style="height:60px;width:60px; margin:5px;"-->
                 <div class="header-content" style="display:inline-block;">微猜想创建</div>
                 <button  v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"  style="float:right;height:100%;" v-on:click="switchtheme">切换主题</button>
             </div>
             <!--主体-->
             <div class="container-fluid" style="margin-top:30px;">
-                <div class="main middle" v-bind:style="{'background-color':this.styleobject.front}">
+                <div class="main middle" v-bind:style="{'background-color':styleobject.front}">
                     <div style="width:80%;font-size: 20px;margin:0 auto">
                         <label>微证据猜想</label>
-                        <input type="input" class="form-control" v-bind:style="{'background-color':this.styleobject.front,color:this.styleobject.content}">
+                        <input type="input" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content}">
                         <label>微猜想内容</label>
-                        <textarea type="input" class="form-control" v-bind:style="{'background-color':this.styleobject.front,color:this.styleobject.content,height:'150px'}"></textarea>
-                        <hr v-bind:style="{border:'1px solid '+this.styleobject.content,margin:'5px'}">
+                        <textarea type="input" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content,height:'150px'}"></textarea>
+                        <hr v-bind:style="{border:'1px solid '+styleobject.content,margin:'5px'}">
 
                         <label>微猜想引用(至少2个)</label>
                         <button type="button" v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"
@@ -38,11 +38,11 @@
                 </div>
             </div>
             <!--弹窗-->
-            <div class="popups"  v-bind:style="{'background-color':this.styleobject.bgtransparent,'display':this.pop}">
-                <div class="popups-body" v-bind:style="{'background-color':this.styleobject.front}">
+            <div class="popups"  v-bind:style="{'background-color':styleobject.bgtransparent,'display':pop}">
+                <div class="popups-body" v-bind:style="{'background-color':styleobject.front}">
                     <div style="width: 80%;margin: 0 auto;">
                         <label>请选择收藏夹中的微猜想</label>
-                        <select multiple size="6" class="form-control popselect" v-bind:style="{'background-color':this.styleobject.front,color:this.styleobject.content}">
+                        <select multiple size="6" class="form-control popselect" v-bind:style="{'background-color':styleobject.front,color:styleobject.content}">
                             <option v-for="collection in collections">{{collection}}</option>
                             
                         </select>

@@ -14,7 +14,7 @@
     <body>
         <div id="app" >
             <!--标题栏-->
-            <div class="container-fluid header" v-bind:style="{'background-color':this.styleobject.front}">
+            <div class="container-fluid header" v-bind:style="{'background-color':styleobject.front}">
                 <!--img src="static/img/guard.png" style="height:60px;width:60px; margin:5px;"-->
                 <div class="header-content" style="display:inline-block;">注册</div>
                 <button  v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"  style="float:right;height:100%;" v-on:click="switchtheme">切换主题</button>
@@ -26,30 +26,30 @@
                     height:'auto',
                     margin:'0 auto',
                     'border-radius':'15px',
-                    'background-color':this.styleobject.front
+                    'background-color':styleobject.front
                 }">
                     <div style="width:80%;margin:0 auto">
                         <label><h3>账户信息</h3></label><br/>
                         <label>新的账户名</label>
-                        <input type="input" class="form-control" v-bind:style="{'background-color':this.styleobject.front,color:this.styleobject.content}" v-model="account">
+                        <input type="input" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content}" v-model="account">
                         <label>密码</label>
-                        <input type="password" class="form-control" v-bind:style="{'background-color':this.styleobject.front,color:this.styleobject.content}" v-model="password">
+                        <input type="password" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content}" v-model="password">
                         <label>确认密码</label>
-                        <input type="password" class="form-control" v-bind:style="{'background-color':this.styleobject.front,color:this.styleobject.content}" v-model="repeatpassword">
+                        <input type="password" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content}" v-model="repeatpassword">
                         <!--
                         <label><h3>个人信息</h3></label><br/>
                         <label>您的姓名</label>
-                        <input type="input" class="form-control" v-bind:style="{'background-color':this.styleobject.front,color:this.styleobject.content}">
+                        <input type="input" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content}">
                         -->
                         <!--
                         <label>您的工作单位</label>
-                        <input type="input" class="form-control" v-bind:style="{'background-color':this.styleobject.front,color:this.styleobject.content}">
+                        <input type="input" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content}">
                         -->
                         <label>您的邮箱</label>
-                        <input type="input" class="form-control" v-bind:style="{'background-color':this.styleobject.front,color:this.styleobject.content}" v-model="email">
+                        <input type="input" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content}" v-model="email">
                         <!--
                         <label>您的个人偏好(按住ctrl键可以多选)</label>
-                        <select multiple class="form-control" v-bind:style="{'background-color':this.styleobject.front,color:this.styleobject.content}">
+                        <select multiple class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content}">
                             <option v-for="tag in tags">{{tag}}</option>
                         </select>
                         -->
