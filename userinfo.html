@@ -54,7 +54,7 @@
                         <button type="button" v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"
                         style="width: 100%; margin-bottom: 3px;" v-on:click="followbuttonclick">{{userinfo.following?'取消关注':'关注Ta'}}</button>
                         <button type="button" v-bind:class="{btn:true,'btn-outline-primary':!darkmode,'btn-outline-success':darkmode}"
-                        style="width: 100%;">向Ta发站内信</button>
+                        style="width: 100%;" v-on:click="send_message">向Ta发站内信</button>
                     </div>
                    
                 </div>
@@ -419,7 +419,7 @@
                             window.location.href="login.html?type=1" 
                         }
                         else if(error.response.status==404){
-                            window.href.location="login.html"
+                            window.location.href="login.html"
                         }
                         console.log(error.response);
                     }.bind(this));
@@ -460,7 +460,7 @@
                             window.location.href="login.html?type=1" 
                         }
                         else if(error.response.status==404){
-                            window.href.location="login.html"
+                            window.location.href="login.html"
                         }
                         console.log(error.response);
                     }.bind(this));
@@ -498,7 +498,7 @@
                             window.location.href="login.html?type=1" 
                         }
                         else if(error.response.status==404){
-                            window.href.location="login.html"
+                            window.location.href="login.html"
                         }
                         console.log(error.response);
                     }.bind(this));
@@ -509,6 +509,9 @@
                 goto_userinfo:function(x){
                     window.location.href="userinfo.html?id="+x; 
                 },
+                send_message:function(){
+                    window.location.href='message.html?id='+this.getQueryVariable('id');
+                }
                 
             },
             mounted(){

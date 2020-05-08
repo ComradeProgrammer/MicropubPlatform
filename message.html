@@ -20,9 +20,9 @@
                 <button  v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"  style="float:right;height:100%;" v-on:click="switchtheme">切换主题</button>
             </div>
             <!--主体-->
-            <div class="container-fluid" style="margin-top:30px;" id="body">
+            <div class="container-fluid" style="margin-top:30px;" id="body" > 
                 <!--消息列表-->
-                <div id="left" class="main" v-bind:style="{'background-color':styleobject.background}">
+                <div id="left" class="main" v-bind:style="{'background-color':styleobject.background}" v-show="!assigned_id">
                     <template v-for="msg in message_list">
                         <div class="leftbar main" v-bind:style="{'background-color':styleobject.front}" v-on:click="left_click(msg.user_id)">
                             <img v-bind:src="msg.avatar?msg.avatar:'static/img/avater.jpg'" class="avatar main">
@@ -35,7 +35,7 @@
                 </div>
                 <!--聊天界面-->
 
-                <div id="right"  v-show="detail" class="main">
+                <div id="right"  v-show="detail" class="main" v-bind:style="{'width':assigned_id?'100%':'63%'}">
                     <div class="rightcontent" v-bind:style="{'background-color':styleobject.background}">
                         <div class="main moremsg"  v-bind:style="{'background-color':styleobject.front}" v-on:click="get_detail(false)"
                         v-show="detail_page!=0">点击加载更多</div>
@@ -93,6 +93,7 @@
                 send_msg:"",
                 detail_page:0,
                 detail_totalpage:0,
+                assigned_id:false,
             },
             computed:{
                 styleobject:function(){
@@ -105,6 +106,7 @@
                 },  
             },
             methods:{
+                //这个里面应该是有Bug的，因为好像js里没有同步锁？
                 left_click:function(x){
                     this.detail_id=x;
                     this.detail=true;
@@ -117,6 +119,7 @@
                     document.querySelector('body').style.backgroundImage=this.styleobject.bgpic;
                     window.localStorage["dark"]=this.darkmode;
                 },
+                //左侧的会话列表获取
                 get_messagelist:function(){
                     if(this.receive_hasnext){
                         this.receive_page++;
@@ -190,6 +193,7 @@
                         }.bind(this));
                     } 
                 },
+                //右侧的会话界面进行重新获取，ref参数表示是不是在进行对最后一页刷新
                 get_first_detail(ref){
                     if(!ref){
                         this.message_detail.splice(0,this.message_detail.length);
@@ -203,7 +207,12 @@
                             },
                         }).then(
                             response=>{
-                                
+                                if(ref){
+                                    //说明刷新最新消息时 新的消息进入了下一页。
+                                    if(response.data._meta.total_pages>this.detail_totalpage){
+                                        this.message_detail.splice(0,this.message_detail.length);
+                                    }
+                                }
                                 this.detail_page=this.detail_totalpage=response.data._meta.total_pages;
                                 this.get_detail(ref);
                             }
@@ -322,10 +331,19 @@
                 },
                 refresh:function(){
                     if(this.detail&&this.detail_page==this.detail_totalpage-1){
-                        console.log("test");
+                        //console.log("test");
                         this.get_first_detail(true);
                     }
-                }
+                },
+                getQueryVariable:function (variable){
+                    var query = window.location.search.substring(1);
+                    var vars = query.split("&");
+                    for (var i=0;i<vars.length;i++) {
+                        var pair = vars[i].split("=");
+                        if(pair[0] == variable){return pair[1];}
+                    }
+                    return(false);
+                },
                 
             },
             mounted(){
@@ -346,8 +364,18 @@
                     document.getElementById("left").style.height=window.innerHeight-110+"px";
                     document.getElementById("right").style.height=window.innerHeight-110+"px";
                 }
+                
+                if(this.getQueryVariable("id")){
+                    this.detail=true;
+                    this.assigned_id=true;
+                    this.detail_id=this.getQueryVariable("id");
+                    this.get_first_detail(false);
+                }
+                else{
+                    this.get_messagelist();
+                }
                 this.timer=setInterval(this.refresh,10000);
-                this.get_messagelist();
+                
             }
         })
     </script>

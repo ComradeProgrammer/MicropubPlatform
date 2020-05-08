@@ -59,7 +59,7 @@
                 <div class="right">
                     <div class="main right-bar" v-bind:style="{'background-color':styleobject.front,'text-align':'center'}">
                         <strong>微证据详情</strong><br>
-                        发表时间:1991-12-25
+                        发表时间:{{time}}
                         <hr v-bind:style="{border:'1px solid '+styleobject.content,margin:'3px'}">
                         <table style="width:100%;text-align: center;" >
                             <thead>
@@ -149,6 +149,7 @@
                 remark:0,
                 liked:false,
                 collected:false,
+                time:"",
                 //
                 modify:false,
                 //评论区详情
@@ -202,7 +203,8 @@
                             this.view=response.data.views;
                             this.remark="???";
                             this.collected=false;
-                            this.liked=false
+                            this.liked=false;
+                            this.time=response.data.timestamp,
                             response.data.likers.includes(window.localStorage["id"]);
                             for(var i=0;i<response.data.likers.length;i++){
                                 if(response.data.likers[i].id==window.localStorage["id"]){

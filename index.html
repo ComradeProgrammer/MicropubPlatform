@@ -241,7 +241,7 @@
                     ).catch(function (error) {
                         if(error.response.status==404){
                             alert("发生错误");
-                            window.href.location="login.html";
+                            window.location.href="login.html";
                         }
                         console.log(error.response)
                     }.bind(this));
