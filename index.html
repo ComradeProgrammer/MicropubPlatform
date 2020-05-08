@@ -40,11 +40,11 @@
                                     'border-right':mode==1?'5px solid gray':'none',
                                     'border-radius':mode==1?'0':'.25rem'}"
                         v-on:click="changemode(1)">微猜想热榜</button>
-                        <button v-bind:class="{btn:true,leftbutton:true,'btn-primary':!darkmode,'btn-success':darkmode}"
+                        <!--button v-bind:class="{btn:true,leftbutton:true,'btn-primary':!darkmode,'btn-success':darkmode}"
                         v-bind:style="{'border-left':mode==2?'5px solid gray':'none',
                                     'border-right':mode==2?'5px solid gray':'none',
                                     'border-radius':mode==2?'0':'.25rem'}"
-                        v-on:click="changemode(2)">微知识热榜</button>
+                        v-on:click="changemode(2)">微知识热榜</button-->
                         <button v-bind:class="{btn:true,leftbutton:true,'btn-primary':!darkmode,'btn-success':darkmode}"
                         v-bind:style="{'border-left':mode==3?'5px solid gray':'none',
                                     'border-right':mode==3?'5px solid gray':'none',
@@ -55,11 +55,11 @@
                                     'border-right':mode==4?'5px solid gray':'none',
                                     'border-radius':mode==4?'0':'.25rem'}"
                         v-on:click="changemode(4)">微猜想推荐</button>
-                        <button v-bind:class="{btn:true,leftbutton:true,'btn-primary':!darkmode,'btn-success':darkmode}"
+                        <!--button v-bind:class="{btn:true,leftbutton:true,'btn-primary':!darkmode,'btn-success':darkmode}"
                         v-bind:style="{'border-left':mode==5?'5px solid gray':'none',
                                     'border-right':mode==5?'5px solid gray':'none',
                                     'border-radius':mode==5?'0':'.25rem'}"
-                        v-on:click="changemode(5)">微知识推荐</button>
+                        v-on:click="changemode(5)">微知识推荐</button-->
                         <button v-bind:class="{btn:true,leftbutton:true,'btn-primary':!darkmode,'btn-success':darkmode}"
                         v-bind:style="{'border-left':mode==6?'5px solid gray':'none',
                                     'border-right':mode==6?'5px solid gray':'none',
@@ -70,18 +70,45 @@
 
                 <!--中部内容-->
                 <div class="middle" >
-                    <!--渲染核心条目-->
-                    <template v-for="item in maindata">
-                        <div class="item card">
-                            <div v-bind:class="styleobject.itemheaderclass">{{item.header}}
-                                <span v-for="badge in item.badges" class="badge badge-pill badge-info mybadge">{{badge}}</span>
-                                <span v-if="item.hot" class="badge badge-danger mybadge">HOT</span>
+                    <template v-if="mode!=6">
+                        <!--渲染核心条目-->
+                        <template v-for="item in maindata">
+                            <div class="item card">
+                                <div v-bind:class="styleobject.itemheaderclass">{{item.header}}
+                                    <span v-for="badge in item.badges" class="badge badge-pill badge-info mybadge">{{badge}}</span>
+                                    <span v-if="item.hot" class="badge badge-danger mybadge">HOT</span>
+                                </div>
+                                <div v-bind:class="styleobject.itembodyclass">{{item.content}}</div>
                             </div>
-                            <div v-bind:class="styleobject.itembodyclass">{{item.content}}</div>
-                        </div>
-                    </template> 
-                    <div class="main"  v-bind:style="{'background-color':styleobject.front,'width':'100%', height:'40px', 'text-align':'center', 'font-size':'15px', 'padding':'7px'}"
-                    v-on:click="moreitem()">点击加载更多</div>
+                        </template> 
+                        
+                    </template>
+
+                    <template v-else-if="mode==6">
+                        <!--顶部导航栏-->
+                        <nav v-bind:class="{navbar:true,'navbar-expand-sm':true ,'navbar-dark':true,main:true,'bg-primary':!darkmode,'bg-success':darkmode}" style="width:100%;margin:0 auto;margin-bottom:10px;">
+                            <ul class="navbar-nav">
+                              <li v-bind:class="{'nav-item':true,'active':submode==0}" style="cursor: pointer;" v-on:click="changesubmode(0)">
+                                <span class="nav-link" >微证据</span>
+                              </li>
+                              <li v-bind:class="{'nav-item':true,'active':submode==1}" style="cursor: pointer;" v-on:click="changesubmode(1)">
+                                <span class="nav-link" >微猜想</span>
+                              </li>
+                            </ul>
+                          </nav>
+                        <template v-for="item in maindata">
+                            <div class="item card">
+                                <div v-bind:class="styleobject.itemheaderclass">{{item.header}}
+                                    <span v-for="badge in item.badges" class="badge badge-pill badge-info mybadge">{{badge}}</span>
+                                    <span v-if="item.hot" class="badge badge-danger mybadge">HOT</span>
+                                </div>
+                                <div v-bind:class="styleobject.itembodyclass">{{item.content}}</div>
+                            </div>
+                        </template> 
+                    </template>
+
+                    <div class="main"  v-bind:style="{'background-color':styleobject.front,'width':'100%', height:'40px', 'text-align':'center', 'font-size':'15px', 'padding':'7px','cursor':'pointer'}"
+                    v-on:click="moreitem()">{{hasnext?'点击加载更多':'已经没有更多了'}}</div>
                     <div style="height:40px;"></div>
                     
                 </div>
@@ -160,9 +187,13 @@
                 },
                 //当前是哪一类页面 从微证据热榜到关注动态依次是0-6
                 mode:0,
+                submode:0,
                 //要渲染的数据
                 maindata:[],
                 userinfo:{valid:false},
+                //页面指针
+                currentpage:0,
+                hasnext:true,
             },
             computed:{
                 styleobject:function(){
@@ -186,7 +217,13 @@
                 changemode:function(x){
                     this.mode=x;
                     this.maindata.splice(0,this.maindata.length);
-                    this.moreitem();
+                    this.currentpage=0;
+                    this.hasnext=true
+                    this.getmaindata();
+                    
+                },
+                changesubmode:function(x){
+                    this.submode=x
                 },
                 //加载更多
                 moreitem:function(){
@@ -198,16 +235,22 @@
                 },
                 //渲染数据
                 getmaindata:function(){
-                    //TODO:AJAX
-                    var n=this.maindata.length;
-                    for(var i=n;i<n+10;i++){
-                        this.maindata.push({
-                            'header':this.mode+'header'+i,
-                            'badges':['计算机体系结构','IEEE'],
-                            'hot':true,
-                            'content':'这里是条目内容这里是条目内容',
-                            'id':i
-                        })
+                    if(this.mode==6){
+                        if(this.submode==0){
+                            this.get_following_evidence();
+                        }
+                    }
+                    else{
+                        var n=this.maindata.length;
+                        for(var i=n;i<n+10;i++){
+                            this.maindata.push({
+                                'header':this.mode+'header'+i,
+                                'badges':['计算机体系结构','IEEE'],
+                                'hot':true,
+                                'content':'这里是条目内容这里是条目内容',
+                                'id':i
+                            })
+                        }
                     }
                 },
                 //获取用户信息
@@ -250,7 +293,46 @@
                     window.localStorage["token"]="";
                     window.localStorage["id"]=""
                     this.userinfo={valid:false};
+                },
+                get_following_evidence:function(){
+                    if(!this.hasnext){
+                        return;
+                    }
+                    this.currentpage++
+                    axios({
+                        method: 'get',
+                        url:'http://114.116.53.43/api/users/'+window.localStorage["id"]+'/followeds-micropubs?page='+this.currentpage+'&per_page=10',
+                        headers:{
+                            'Cache-Control': 'no-cache',
+                            'Authorization':'Bearer '+window.localStorage["token"],
+                        },
+                        
+                    }).then(
+                        response=>{
+                            debugger
+                            console.log(response)
+                            this.hasnext=response.data._links.next!=null;
+                            for(var i=0;i<response.data.items.length;i++){
+                                this.maindata.push({
+                                    id:response.data.items[i].id,
+                                    header:response.data.items[i].title,
+                                    content:response.data.items[i].body,
+                                    badges:[],
+                                })
+                            }
+                        }
+                    ).catch(function (error) {
+                        //debugger
+                        if(error.response.status==400){
+                            window.location.href="login.html?type=1" 
+                        }
+                        else if(error.response.status==404){
+                            window.location.href="login.html"
+                        }
+                        console.log(error.response);
+                    }.bind(this));
                 }
+
                
             },
             mounted(){
