@@ -27,10 +27,18 @@
                         <input type="input" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content}" v-model="header">
                         <label>微证据内容</label>
                         <textarea type="input" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content,height:'150px'}" v-model="content"></textarea>
-                        <!--
+
                         <label>微证据引用</label>
-                        <textarea type="input" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content,height:'100px'}" placeholder="请在此输入框输入所引用内容来源的链接，如有多个链接中间用空格分隔"></textarea>
-                        -->
+                        <textarea type="input" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content,height:'100px'}" placeholder="请在此输入框输入所引用内容来源的链接，如有多个链接中间用回车分隔" v-model="reference"></textarea>
+                        <label>为你的微证据添加标签(至少1个)</label><br>
+                            <button v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}" style="float:right;"
+                            v-on:click="tags_count++">
+                            +添加标签</button>
+                            <button v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}" style="float:right;margin-right:5px" v-on:click="tags_count=tags_count>1?tags_count-1:0">
+                            -删除标签</button>
+                            <template v-for="tmp_n in tags_count">
+                                <input type="input" class="form-control tags" v-bind:style="{'background-color':styleobject.front,color:styleobject.content,'margin':'5px',width:'50%'}" >
+                            </template>
                         <button type="button" v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}" style="margin:0 auto;margin-top:10px;width:100%" v-on:click="submit">提交</button><br>
                         <div style="height:50px"></div>
                     </div>
@@ -64,6 +72,8 @@
                 //
                 header:"",
                 content:"",
+                reference:"",
+                tags_count:1,
                 type:0,
             },
             computed:{
@@ -98,9 +108,16 @@
                         alert("标题和内容不能为空")
                         return
                     }
+                    // TODO:api-test
+                    var tags=[];
+                    for(var i=0;i<this.tags_count;i++){
+                        tags.push(document.getElementsByClassName("tags")[i].value);
+                    }
                     var bundle={
                         title:this.header,
-                        body:this.content,
+                        summary:this.content,
+                        reference:this.reference,
+                        tags:tags,
                     };
                     if(this.type==0){
                         //new publication
@@ -165,7 +182,7 @@
                             }
                         }.bind(this));
                     }
-                }
+                },
             },
             mounted(){
                 if(!window.localStorage["dark"]||window.localStorage["dark"]=="false"){
@@ -201,8 +218,18 @@
                                 window.history.back(-1);
                             }
                             else{
+                                //todo: api test
                                 this.header=response.data.title;
-                                this.content=response.data.body;
+                                this.content=response.data.summary;
+                                this.reference=response.data.reference;
+                                this.tags_count=response.data.tags.length
+                                this.$nextTick(
+                                    ()=>{
+                                        for(var i=0;i<response.data.tags.length;i++){
+                                            document.getElementsByClassName("tags")[i].value=response.data.tags[i];
+                                        }
+                                    })
+                                
                             }
                     }).catch(function (error) {
                         
@@ -219,7 +246,8 @@
                         }
                     }.bind(this));
                 }
-            }
+            },
+            
         })
     </script>
     <link rel="stylesheet" type="text/css" href="static/css/header.css">
@@ -230,6 +258,9 @@
             margin: 0 auto;
             height:auto;
             opacity:0.9;
+        }
+        .tags{
+            display: block;
         }
     </style>
 </html>

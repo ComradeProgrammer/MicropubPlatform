@@ -29,7 +29,7 @@
                         <span v-for="topic in topics" style="margin-left:5px;"
                         v-bind:class="{badge:true,'badge-pill':true,'badge-primary':!darkmode,'badge-success':darkmode}">{{topic}}</span>
 
-                        <!--hr v-bind:style="{border:'1px solid '+styleobject.content,margin:'3px'}"-->
+                        <hr v-bind:style="{border:'1px solid '+styleobject.content,margin:'3px'}">
                         <h3>{{header}} </h3>
                     </div>
                     <!--内容-->
@@ -80,13 +80,13 @@
                                     {{liked?'已点赞':'点赞'}}</button>
                                 <button v-bind:class="{btn:true,leftbutton:true,
                                     'btn-outline-primary':!darkmode&&!collected,'btn-outline-success':darkmode&&!collected,
-                                    'btn-primary':!darkmode&&collected,'btn-success':darkmode&&collected}">
+                                    'btn-primary':!darkmode&&collected,'btn-success':darkmode&&collected}" v-on:click="collect_click">
                                     {{collected?'已收藏':'收藏'}}</button>
                                 <button v-bind:class="{btn:true,leftbutton:true,'btn-outline-primary':!darkmode,'btn-outline-success':darkmode}">评论</button>
                             </div>
                             <template v-if="modify">
                                 <button v-bind:class="{btn:true,leftbutton:true,'btn-primary':!darkmode,'btn-success':darkmode}" style="width: 99%;margin-top: 5px;" v-on:click="goto_modify">修改此微证据</button>
-                                <button class="btn btn-danger" style="width: 99%;margin-top: 2px;" v-on:click="goto_delete">删除此微证据</button>
+                                <!--button class="btn btn-danger" style="width: 99%;margin-top: 2px;" v-on:click="goto_delete">删除此微证据</button-->
                         </template>
                     </div>
                     <div class="main right-bar" v-bind:style="{'background-color':styleobject.front,'text-align':'center'}">
@@ -143,7 +143,6 @@
                 content:"",
                 topics:[],
                 hrefs:[],
-                date:"",
                 like:0,
                 views:0,
                 remark:0,
@@ -185,6 +184,7 @@
                     return(false);
                 },
                 getdata:function(id){
+                    // todo: api test
                     axios({
                         method: 'get',
                         url:'http://114.116.53.43/api/micropubs/'+id,
@@ -196,24 +196,18 @@
                     }).then(
                         response=>{
                             //debugger
+                            console.log(response.data)
                             this.header=response.data.title;
-                            this.content=response.data.body;
-                            this.date=response.data.timestamp;
-                            this.like=response.data.likers_count;
+                            this.content=response.data.summary;
+                            this.like=response.data.likes;
                             this.view=response.data.views;
                             this.remark="???";
-                            this.collected=false;
-                            this.liked=false;
+                            this.collected=response.data.is_collected;
+                            this.liked=response.data.is_liked;
                             this.time=response.data.timestamp,
                             response.data.likers.includes(window.localStorage["id"]);
-                            for(var i=0;i<response.data.likers.length;i++){
-                                if(response.data.likers[i].id==window.localStorage["id"]){
-                                    this.liked=true;
-                                    break;
-                                }
-                            }
-                            //
-                            this.topics=[];
+                            this.topics=response.data.tags;
+                            //todo references split
                             this.hrefs=[]
                             if(response.data.author.id==window.localStorage["id"]){
                                 this.modify=true;
@@ -282,10 +276,18 @@
                             }
                         } 
                     ).catch(function (error) {
+                        //debugger
+                        if(error.response.status==400){
+                            if(!error.response.data.message){
+                                window.location.href="login.html?type=1";
+                                return;
+                            } 
+                        }
                         if(error.response.status==404){
                             alert("发生错误");
                             window.history.back(-1);
                         }
+
                         console.log(error.response)
                     }.bind(this))
                 
@@ -310,6 +312,45 @@
                         response=>{
                             console.log(response)
                             window.location.reload();
+                            //todo remove reload?
+                            //this.liked=!this.liked;
+                        } 
+                    ).catch(function (error) {
+                        if(error.response.status==400){
+                            if(!error.response.data.message){
+                                window.location.href="login.html?type=1";
+                                return;
+                            } 
+                        }
+                        else if(error.response==404){
+                            alert("该微猜想不存在或已被删除");
+                            window.history.back(-1);
+                        }
+                        console.log(error.response)
+                    }.bind(this))
+                },
+                collect_click:function(){
+                    // todo api test
+                    var id=this.getQueryVariable("id");
+                    var api="";
+                    if(this.collected){
+                        api="http://114.116.53.43/api/micropubs/"+id+"/uncollect"
+                    }
+                    else{
+                        api="http://114.116.53.43/api/micropubs/"+id+"/collect"
+                    }
+                    axios({
+                        method: 'get',
+                        url:api,
+                        headers:{
+                            'Cache-Control': 'no-cache',
+                            'Authorization':'Bearer '+window.localStorage["token"],
+                        },
+                    }).then(
+                        response=>{
+                            console.log(response)
+                            window.location.reload();
+                            //todo remove reload?
                             //this.liked=!this.liked;
                         } 
                     ).catch(function (error) {

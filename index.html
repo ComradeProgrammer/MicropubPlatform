@@ -224,6 +224,10 @@
                 },
                 changesubmode:function(x){
                     this.submode=x
+                    this.maindata.splice(0,this.maindata.length);
+                    this.currentpage=0;
+                    this.hasnext=true;
+                    this.getmaindata();
                 },
                 //加载更多
                 moreitem:function(){
@@ -236,12 +240,10 @@
                 //渲染数据
                 getmaindata:function(){
                     if(this.mode==6){
-                        if(this.submode==0){
-                            this.get_following_evidence();
-                        }
+                        this.get_following();
                     }
                     else{
-                        var n=this.maindata.length;
+                        /*var n=this.maindata.length;
                         for(var i=n;i<n+10;i++){
                             this.maindata.push({
                                 'header':this.mode+'header'+i,
@@ -250,7 +252,55 @@
                                 'content':'这里是条目内容这里是条目内容',
                                 'id':i
                             })
+                        }*/
+                        var api="";
+                        switch(this.mode){
+                            case 0:
+                                api='http://114.116.53.43/api/micropubs?page='+this.currentpage+'&per_page=10'
+                                break;
+                            case 1:
+                                api='http://114.116.53.43/api/micropubs?page='+this.currentpage+'&per_page=10'
+                                break;
+                            case 3:
+                                //api='http://114.116.53.43/api/micropubs?page='+this.currentpage+'&per_page=10'
+                                break;
+                            case 4:
+                                //api='http://114.116.53.43/api/micropubs?page='+this.currentpage+'&per_page=10'
+                                break;
                         }
+                        if(api==""){
+                            return
+                        }
+                        this.currentpage++;
+                        axios({
+                            method: 'get',
+                            url:api,
+                            headers:{
+                                'Cache-Control': 'no-cache',
+                                'Authorization':'Bearer '+window.localStorage["token"],
+                            },
+                            
+                        }).then(
+                            response=>{
+                            //debugger
+                                this.hasnext=response.data._links.next!=null;
+                                for(var i=0;i<response.data.items.length;i++){
+                                    this.maindara.push({
+                                        id:response.data.items[i].id,
+                                        header:response.data.items[i].title,
+                                        content:response.data.items[i].summary,
+                                        badges:response.tags,
+                                        hot:false,
+                                    })
+                                }
+                            }
+                        ).catch(function (error) {
+                            //debugger
+                            if(error.response.status==400){
+                                window.location.href="login.html?type=1" 
+                            }
+                            console.log(error.response);
+                        }.bind(this));
                     }
                 },
                 //获取用户信息
@@ -294,14 +344,22 @@
                     window.localStorage["id"]=""
                     this.userinfo={valid:false};
                 },
-                get_following_evidence:function(){
+                get_following:function(){
                     if(!this.hasnext){
                         return;
                     }
                     this.currentpage++
+                    var api="";
+                    if(this.submode==0){
+                        api='http://114.116.53.43/api/users/'+window.localStorage["id"]+'/followeds-micropubs?page='+this.currentpage+'&per_page=10';
+                    }
+                    else{
+                        api='http://114.116.53.43/api/users/'+window.localStorage["id"]+'/followeds-microcons?page='+this.currentpage+'&per_page=10';
+                    }
+                    // toso test api
                     axios({
                         method: 'get',
-                        url:'http://114.116.53.43/api/users/'+window.localStorage["id"]+'/followeds-micropubs?page='+this.currentpage+'&per_page=10',
+                        url:api,
                         headers:{
                             'Cache-Control': 'no-cache',
                             'Authorization':'Bearer '+window.localStorage["token"],
@@ -322,13 +380,13 @@
                             }
                         }
                     ).catch(function (error) {
-                        //debugger
+                        debugger
                         if(error.response.status==400){
                             window.location.href="login.html?type=1" 
                         }
-                        else if(error.response.status==404){
-                            window.location.href="login.html"
-                        }
+                        // else if(error.response.status==404){
+                        //     window.location.href="login.html"
+                        // }
                         console.log(error.response);
                     }.bind(this));
                 }

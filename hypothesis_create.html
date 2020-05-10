@@ -8,6 +8,7 @@
         <script src="https://cdn.staticfile.org/popper.js/1.15.0/umd/popper.min.js"></script>
         <script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <script src="https://cdn.staticfile.org/axios/0.18.0/axios.min.js"></script>
         <title></title>
     </head>
     <body>
@@ -27,10 +28,26 @@
                         <label>微猜想内容</label>
                         <textarea type="input" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content,height:'150px'}"></textarea>
                         <hr v-bind:style="{border:'1px solid '+styleobject.content,margin:'5px'}">
+                        <label>为你的微猜想添加标签(至少1个)</label><br>
+                            <button v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}" style="float:right;"
+                            v-on:click="tags_count++">
+                            +添加标签</button>
+                            <button v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}" style="float:right;margin-right:5px" v-on:click="tags_count=tags_count>1?tags_count-1:0">
+                            -删除标签</button>
+                            <template v-for="tmp_n in tags_count">
+                                <input type="input" class="form-control tags" v-bind:style="{'background-color':styleobject.front,color:styleobject.content,'margin':'5px',width:'50%'}" >
+                            </template>
+                        <hr v-bind:style="{border:'1px solid '+styleobject.content,margin:'5px'}">
+                        <label>微猜想引用(2个)</label>
+                        <br>
 
-                        <label>微猜想引用(至少2个)</label>
+                        <label style="width: 70%;overflow: hidden;">微证据1:{{evidence1_header}}</label>
                         <button type="button" v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"
-                        v-on:click="choose_evidence">从收藏夹中选择</button>
+                        v-on:click="choose_evidence(1)" style="float: right;">从收藏夹中选择</button><br>
+
+                        <label style="width: 70%;overflow: hidden;">微证据2:{{evidence2_header}}</label>
+                        <button type="button" v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"
+                        v-on:click="choose_evidence(2)" style="float: right;">从收藏夹中选择</button><br>
                         
                         <button type="button" v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}" style="margin:0 auto;margin-top:10px;width:100%">提交</button><br>
                         <div style="height:50px"></div>
@@ -42,11 +59,13 @@
                 <div class="popups-body" v-bind:style="{'background-color':styleobject.front}">
                     <div style="width: 80%;margin: 0 auto;">
                         <label>请选择收藏夹中的微猜想</label>
-                        <select multiple size="6" class="form-control popselect" v-bind:style="{'background-color':styleobject.front,color:styleobject.content}">
-                            <option v-for="collection in collections">{{collection}}</option>
+                        <select  size="6" class="form-control popselect" v-bind:style="{'background-color':styleobject.front,color:styleobject.content}" v-model="evidence_from_collection">
+                            <option v-for="collection in collections" v-bind:value="{id:collection.id,title:collection.title}">{{collection.title}}</option>
                             
                         </select>
                         <div style="height: 5px;"></div>
+                        <button type="button" v-bind:class="{btn:true,'btn-outline-primary':!darkmode,'btn-outline-success':darkmode}"
+                        style="width: 95%;margin:5px" v-on:click="get_collections">{{colection_hasnext?'加载更多':'没有更多内容'}}</button>
                         <button type="button" v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"
                         style="width: 95%;" v-on:click="choose_finish">确认</button>
                         <div style="height: 20px;"></div>
@@ -82,8 +101,23 @@
                 },
                 //弹窗设置
                 pop:"none",
+                evidence_from_collection:"",
+                current_editing:1,
                 //收藏夹数据
                 collections:[],
+                colection_hasnext:true,
+                collection_currentpage:0,
+                //双向绑定
+                title:"",
+                summary:"",
+                evidence1:"",
+                evidence2:"",
+                evidence1_header:"",
+                evidence2_header:"",
+                //
+                
+                tags_count:1,
+
             },
             computed:{
                 styleobject:function(){
@@ -103,18 +137,66 @@
                     document.querySelector('body').style.backgroundImage=this.styleobject.bgpic;
                     window.localStorage["dark"]=this.darkmode;
                 },
-                choose_evidence:function(){
+                choose_evidence:function(x){
+                    //debugger
+                    this.current_editing=x;
+                    this.evidence_from_collection={},
                     this.pop="block";
+                    this.collection_currentpage=0;
                     this.get_collections();
                 },
                 choose_finish:function(){
+                    //debugger
                     this.pop="none";
+                    if(this.current_editing==1){
+                        this.evidence1=this.evidence_from_collection.id;
+                        this.evidence1_header=this.evidence_from_collection.title;
+                        console.log(this.evidence_from_collection.header)
+                        console.log(this.evidence1_header)
+                    }
+                    else if(this.current_editing==2){
+                        this.evidence2=this.evidence_from_collection;
+                        this.evidence2_header=this.evidence_from_collection.title;
+                    }
                 },
                 get_collections(){
-                    //TODO AJAX
-                    for(var i=0;i<10;i++){
-                        this.collections.push("微证据"+i);
+                    //TODO api test
+                    if(!this.colection_hasnext){
+                        return;
                     }
+                    this.collection_currentpage++;
+                    axios({
+                        method: 'get',
+                        url:'http://114.116.53.43/api/users/'+window.localStorage["id"]+'/collected-micropubs?page='+this.collection_currentpage+'&per_page=10',
+                        headers:{
+                            'Cache-Control': 'no-cache',
+                            'Authorization':'Bearer '+window.localStorage["token"],
+                        },
+                        
+                    }).then(
+                        response=>{
+                            debugger
+                            console.log(response)
+                            this.hasnext=response.data._links.next!=null;
+                            for(var i=0;i<response.data.items.length;i++){
+                                this.maindata.push({
+                                    id:response.data.items[i].id,
+                                    title:response.data.items[i].title,
+                                })
+                            }
+                        }
+                    ).catch(function (error) {
+                        //debugger
+                        if(error.response.status==400){
+                            window.location.href="login.html?type=1" 
+                        }
+                        else if(error.response.status==404){
+                            //window.location.href="login.html"
+                            alert("出现错误");
+                            window.history.back(-1);
+                        }
+                        console.log(error.response);
+                    }.bind(this));
                 }
                
             },
