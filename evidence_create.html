@@ -173,11 +173,11 @@
                                 } 
                             }
                             else if(error.response.status==404){
-                                alert("该微猜想不存在或已被删除");
+                                alert("该微证据不存在或已被删除");
                                 window.history.back(-1);
                             }
                             else if(error.response.status==403){
-                                alert("您无权修改此猜想");
+                                alert("您无权修改此微证据");
                                 window.history.back(-1);
                             }
                         }.bind(this));
@@ -214,7 +214,7 @@
                     }).then(
                         response=>{
                             if(response.data.author.id!=window.localStorage["id"]){
-                                alert("您无权修改此猜想");
+                                alert("您无权修改此微证据");
                                 window.history.back(-1);
                             }
                             else{
@@ -241,7 +241,7 @@
                             } 
                         }
                         else if(error.response==404){
-                            alert("该微猜想不存在或已被删除");
+                            alert("该微证据不存在或已被删除");
                             window.history.back(-1);
                         }
                     }.bind(this));
