@@ -32,7 +32,7 @@
                             <button v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}" style="float:right;"
                             v-on:click="tags_count++">
                             +添加标签</button>
-                            <button v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}" style="float:right;margin-right:5px" v-on:click="tags_count=tags_count>1?tags_count-1:0">
+                            <button v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}" style="float:right;margin-right:5px" v-on:click="tags_count=tags_count>1?tags_count-1:1">
                             -删除标签</button>
                             <template v-for="tmp_n in tags_count">
                                 <input type="input" class="form-control tags" v-bind:style="{'background-color':styleobject.front,color:styleobject.content,'margin':'5px',width:'50%'}" >
