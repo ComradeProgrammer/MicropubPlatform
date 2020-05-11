@@ -135,7 +135,7 @@
                     </template>
 
                     <template v-else-if="pagetype==5">
-                        <nav v-bind:class="{navbar:true,'navbar-expand-sm':true ,'navbar-dark':true,main:true,'bg-primary':!darkmode,'bg-success':darkmode}" style="width:95%;margin:0 auto;margin-bottom:10px;">
+                        <nav v-bind:class="{navbar:true,'navbar-expand-sm':true ,'navbar-dark':true,main:true,'bg-primary':!darkmode,'bg-success':darkmode}" style="width:100%;margin:0 auto;margin-bottom:10px;">
                             <ul class="navbar-nav">
                               <li v-bind:class="{'nav-item':true,'active':submode==0}" style="cursor: pointer;" v-on:click="changesubmode(0)">
                                 <span class="nav-link" >收藏的微证据</span>
@@ -149,7 +149,7 @@
                         <template v-for="c in collected_item">
                         <div class="item card" style="opacity: 0.8;cursor: pointer;" v-on:click="submode==0?goto_evidence(c.id):goto_hypothesis(c.id)">
                             <div v-bind:class="styleobject.itemheaderclass">{{c.header}}
-                                <span class="badge badge-pill badge-info mybadge" v-for="b in h.badge">{{b}}</span>
+                                <span class="badge badge-pill badge-info mybadge" v-for="b in c.badge">{{b}}</span>
                             </div>
                             <div v-bind:class="styleobject.itembodyclass">{{c.content}}</div>
                         </div>
@@ -611,6 +611,7 @@
                 load_collection:function(){
                     // test api
                     var api=""
+                    this.currentpage++;
                     if(this.submode==0){
                         api='http://114.116.53.43/api/users/'+window.localStorage["id"]+'/collected-micropubs?page='+this.currentpage+'&per_page=10'
                     }
@@ -678,7 +679,7 @@
                                     id:response.data.items[i].id,
                                     header:response.data.items[i].title,
                                     content:response.data.items[i].summary,
-                                    badges:response.tags,
+                                    badges:response.data.items[i].tags,
                                 })
                             }
                         }

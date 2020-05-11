@@ -60,7 +60,7 @@
                 </div>
                 <!--中部-->
                 <div class="middle">
-                    <nav v-bind:class="{navbar:true,'navbar-expand-sm':true ,'navbar-dark':true,main:true,'bg-primary':!darkmode,'bg-success':darkmode}" style="width:95%;margin:0 auto;margin-bottom:10px;">
+                    <nav v-bind:class="{navbar:true,'navbar-expand-sm':true ,'navbar-dark':true,main:true,'bg-primary':!darkmode,'bg-success':darkmode}" style="width:100%;margin:0 auto;margin-bottom:10px;">
                         <ul class="navbar-nav">
                           <li v-bind:class="{'nav-item':true,'active':mode==0}" style="cursor: pointer;" v-on:click="changemode(0)">
                             <span class="nav-link" >Ta的微证据</span>
@@ -83,17 +83,28 @@
                         <template v-for="evidence in evidences">
                             <div class="item card" style="cursor: pointer;" v-on:click="goto_evidence(evidence.id)">
                                 <div v-bind:class="styleobject.itemheaderclass">{{evidence.header}}
-                                    <span class="badge badge-pill badge-info mybadge" v-for="b in evidence.badge">{{b}}</span>
+                                    <span class="badge badge-pill badge-info mybadge" v-for="b in evidence.badges">{{b}}</span>
                                 </div>
                                 <div v-bind:class="styleobject.itembodyclass">{{evidence.content}}</div>
                             </div>
                         </template>
-                        <div class="main middle-body" v-bind:style="{'background-color':styleobject.front,'text-align':'center',width:'95%',margin:'0 auto','cursor':'pointer'}" v-on:click="getevidences">
+                        <div class="main middle-body" v-bind:style="{'background-color':styleobject.front,'text-align':'center',width:'100%',margin:'0 auto','cursor':'pointer'}" v-on:click="getevidences">
                             {{hasnext?'点击加载更多':'已经没有更多了'}}
                         </div>
                     </template>
                     <template v-else-if="mode==1">
+                        <template v-for="h in hypothesis">
+                            <div class="item card" style="cursor: pointer;" v-on:click="goto_hypothesis(h.id)">
+                                <div v-bind:class="styleobject.itemheaderclass">{{h.header}}
+                                    <span class="badge badge-pill badge-info mybadge" v-for="b in h.badges">{{b}}</span>
+                                </div>
+                                <div v-bind:class="styleobject.itembodyclass">{{h.content}}</div>
+                            </div>
                         </template>
+                        <div class="main middle-body" v-bind:style="{'background-color':styleobject.front,'text-align':'center',width:'100%',margin:'0 auto','cursor':'pointer'}" v-on:click="gethypothesis">
+                            {{hasnext?'点击加载更多':'已经没有更多了'}}
+                        </div>
+                    </template>
                     <template v-else-if="mode==2">
                         <div style="width: 95%;margin:0 auto">
                         <template v-for="f in following">
@@ -106,8 +117,6 @@
                                     <span v-if="f.forbidden" class="badge badge-danger">封禁中</span><br>
                                     <button v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"
                                         style="font-size: 12px;" v-on:click="goto_userinfo(f.id)">个人中心</button>
-                                    <button class="btn btn-danger" style="font-size: 12px;margin-top:2px;"
-                                    v-on:click="unfollow(f.id)">取消关注</button>
                                 </div>
                             </div>
                         </template>
@@ -131,7 +140,7 @@
                                 </div>
                             </div>
                         </template>
-                        <div class="main middle-body" v-bind:style="{'background-color':styleobject.front,'text-align':'center',width:'96%',margin:'0 auto','cursor':'pointer'}" v-on:click="getfollowing">
+                        <div class="main middle-body" v-bind:style="{'background-color':styleobject.front,'text-align':'center',width:'100%',margin:'0 auto','cursor':'pointer'}" v-on:click="getfollowing">
                             {{hasnext?'点击加载更多':'已经没有更多了'}}
                         </div>
                     </template>
@@ -151,9 +160,9 @@
                                 <td style="text-align: center;">{{userinfo.followedpubs}}</td>
                             </tr></tbody>
                         </table>
-                        
-                        邮箱:{{userinfo.email}}<br>
                         <!--
+                        邮箱:{{userinfo.email}}<br>
+                        
                         个人主页:xxxxxxxxxx.com<br>
                         住址:xxxxxxxxxxxxxx<br>
                         职业:xxxxxxxxxxxxxxx<br>
@@ -202,6 +211,7 @@
                 following:[],
                 //模式3 关注T的人
                 followed:[],
+                hypothesis:[],
                 //页数
                 currentpage:0,
                 hasnext:true,
@@ -257,7 +267,7 @@
                         },
                     }).then(
                         response=>{
-                            //console.log(response)
+                            console.log(response)
                             this.userinfo={
                                 valid:true,
                                 //account:'ussr',
@@ -265,6 +275,7 @@
                                 forbidden:false,
                                 administrator:false,
                                 micropub:response.data.micropubs_count,
+
                                 followed:response.data.followers_count,
                                 following_count:response.data.followeds_count,
                                 avatar:response.data._links.avatar,
@@ -368,6 +379,12 @@
                         this.hasnext=true;
                         this.evidences.splice(0,this.evidences.length);
                         this.getevidences();
+                    }
+                    else if(x==1){
+                        this.currentpage=0;
+                        this.hasnext=true;
+                        this.hypothesis.splice(0,this.evidences.length);
+                        this.gethypothesis();
                     }
                     else if(x==2){
                         this.currentpage=0;
@@ -481,14 +498,14 @@
                         
                     }).then(
                         response=>{
-                            //debugger
+                            debugger
                             this.hasnext=response.data._links.next!=null;
                             for(var i=0;i<response.data.items.length;i++){
                                 this.evidences.push({
                                     id:response.data.items[i].id,
                                     header:response.data.items[i].title,
-                                    content:response.data.items[i].body,
-                                    badges:[],
+                                    content:response.data.items[i].summary,
+                                    badges:response.data.items[i].tags,
                                 })
                             }
                         }
@@ -511,8 +528,52 @@
                 },
                 send_message:function(){
                     window.location.href='message.html?id='+this.getQueryVariable('id');
-                }
-                
+                },
+                goto_hypothesis:function(id){
+                    window.location.href="hypothesis_detail.html?id="+id;
+                },
+                gethypothesis:function(){
+                    //todo test api
+                    debugger
+                    var target=this.getQueryVariable("id");
+                    if(!this.hasnext){
+                        return;
+                    }
+                    this.currentpage++;
+                    axios({
+                        method: 'get',
+                        url:'http://114.116.53.43/api/users/'+target+'/microcons?page='+this.currentpage+'&per_page=10',
+                        headers:{
+                            'Cache-Control': 'no-cache',
+                            'Authorization':'Bearer '+window.localStorage["token"],
+                        },
+                        
+                    }).then(
+                        response=>{
+                            debugger
+                            console.log(response)
+                            this.hasnext=response.data._links.next!=null;
+                            for(var i=0;i<response.data.items.length;i++){
+                                this.hypothesis.push({
+                                    id:response.data.items[i].id,
+                                    header:response.data.items[i].title,
+                                    content:response.data.items[i].summary,
+                                    badges:response.data.items[i].tags,
+                                })
+                            }
+                        }
+                    ).catch(function (error) {
+                        debugger
+                        console.log(error.response)
+                        if(error.response.status==400){
+                            window.location.href="login.html?type=1" 
+                        }
+                        else if(error.response.status==404){
+                            window.location.href="login.html"
+                        }
+                        console.log(error.response);
+                    }.bind(this));
+                },
             },
             mounted(){
                 if(!window.localStorage["dark"]||window.localStorage["dark"]=="false"){

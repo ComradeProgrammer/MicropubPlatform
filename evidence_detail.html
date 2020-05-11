@@ -50,10 +50,12 @@
                         <a href>@{{comment.username}}</a>:{{comment.content}}
                         <div style="text-align: right;">发表于:{{comment.date}}<br></div>
                     </div>
-
-                    <div class="main middle-body" v-bind:style="{'background-color':styleobject.front,'text-align':'center',width:'100%',margin:'0 auto','cursor':'pointer'}" v-on:click="morecomments()">
-                        点击加载更多
+                    <div class="main middle-body" v-bind:style="{'background-color':styleobject.front,'text-align':'center',width:'100%',margin:'0 auto','cursor':'pointer'}" v-show="comments.length==0">
+                        暂无评论
                     </div>
+                    <!--div class="main middle-body" v-bind:style="{'background-color':styleobject.front,'text-align':'center',width:'100%',margin:'0 auto','cursor':'pointer'}" v-on:click="morecomments()">
+                        点击加载更多
+                    </div-->
                 </div>
                 <!--右侧-->
                 <div class="right">
@@ -195,7 +197,7 @@
                         },
                     }).then(
                         response=>{
-                            //debugger
+                            debugger
                             console.log(response.data)
                             this.header=response.data.title;
                             this.content=response.data.summary;
@@ -204,18 +206,17 @@
                             this.remark="???";
                             this.collected=response.data.is_collected;
                             this.liked=response.data.is_liked;
-                            this.time=response.data.timestamp,
-                            response.data.likers.includes(window.localStorage["id"]);
+                            this.time=response.data.timestamp;
                             this.topics=response.data.tags;
-                            //todo references split
-                            this.hrefs=[]
-                            if(response.data.author.id==window.localStorage["id"]){
+                            this.hrefs=response.data.reference.split("\n");
+                            this.comments=response.data.comments;
+                            if(response.data.author_id==window.localStorage["id"]){
                                 this.modify=true;
                             }
-                            this.getuserinfo(response.data.author.id);
+                            this.getuserinfo(response.data.author_id);
                         }
                     ).catch(function (error) {
-                        
+                        console.log(error);
                         console.log(error.response)
                         if(error.response.status==400){
                             if(!error.response.data.message){
@@ -230,7 +231,7 @@
                     }.bind(this));
                     
                },
-               getcomment:function(){
+               /*getcomment:function(){
                     var n=this.comments.length;
                     for(var i=n;i<n+10;i++){
                         this.comments.push({
@@ -247,7 +248,7 @@
                     this.getcomment();
                     //DOM更新完成之后再跳回到原来的位置
                     this.$nextTick(()=>{document.documentElement.scrollTop=tmp;})
-               },
+               },*/
                getuserinfo:function(user_id){
                     if(!window.localStorage["token"]){
                         return;
@@ -425,7 +426,7 @@
                     window.history.back(-1);
                 }
                 this.getdata(id);
-                this.getcomment();
+                //this.getcomment();
             }
         })
     </script>

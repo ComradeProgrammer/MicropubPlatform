@@ -38,7 +38,7 @@
                     </div>
                     <!--内容-->
                     <div class="main middle-body" v-bind:style="{'background-color':styleobject.front}">
-                        {{content}}
+                        <span style="font-size: 20px;">{{content}}</span>
                         <hr v-bind:style="{border:'1px solid '+styleobject.content,margin:'3px'}">
                         <div v-if="state==0" style="text-align:center;width:100%">
                             <button class="btn btn-danger">否定微猜想</button>
@@ -60,8 +60,8 @@
                         <div style="text-align: right;">发表于:{{comment.date}}<br></div>
                     </div>
 
-                    <div class="main middle-body" v-bind:style="{'background-color':styleobject.front,'text-align':'center',width:'100%',margin:'0 auto'}" v-on:click="morecomments()">
-                        点击加载更多
+                    <div class="main middle-body" v-bind:style="{'background-color':styleobject.front,'text-align':'center',width:'100%',margin:'0 auto','cursor':'pointer'}" v-show="comments.length==0">
+                        暂无评论
                     </div>
                 </div>
                 <!--右侧-->
@@ -109,12 +109,14 @@
                     </div>
                     <div class="main right-bar" v-bind:style="{'background-color':styleobject.front,'text-align':'center'}">
                         <strong>作者详情</strong><br>
-                        {{userinfo.username}}<br>
-                        <a v-bind:href="'userinfo.html?id='+userinfo.id" style="font-size: 12px;">前往Ta的个人主页></a><br>
-                        <img v-bind:src="userinfo.avatar?userinfo.avatar:'static/img/avater.jpg'" class="avatar"><br>
+                        {{userinfo.username}}
                         <span v-if="userinfo.valid" class="badge badge-primary">已注册</span>
                         <span v-if="userinfo.valid&&userinfo.administrator"class="badge badge-warning">管理员</span>
                         <span v-if="userinfo.valid&&userinfo.forbidden" class="badge badge-danger">封禁中</span>
+                        <br>
+                        <a v-bind:href="'userinfo.html?id='+userinfo.id" style="font-size: 12px;">前往Ta的个人主页></a><br>
+                        <img v-bind:src="userinfo.avatar?userinfo.avatar:'static/img/avater.jpg'" class="avatar"><br>
+                        
                         <table style="width:100%" v-if="userinfo.valid">
                             <thead>
                                 <th>微知识</th>
@@ -221,7 +223,7 @@
                         },
                     }).then(
                         response=>{
-                            //debugger
+                            debugger
                             console.log(response.data)
                             this.header=response.data.title;
                             this.content=response.data.summary;
@@ -231,13 +233,12 @@
                             this.collected=response.data.is_collected;
                             this.liked=response.data.is_liked;
                             this.time=response.data.timestamp,
-                            response.data.likers.includes(window.localStorage["id"]);
                             this.topics=response.data.tags;
-                            if(response.data.author.id==window.localStorage["id"]){
+                            if(response.data.author_id==window.localStorage["id"]){
                                 this.modify=true;
                             }
                             this.state=0
-                            this.getuserinfo(response.data.author.id);
+                            this.getuserinfo(response.data.author_id);
                         }
                     ).catch(function (error) {
                         
@@ -254,7 +255,7 @@
                         }
                     }.bind(this));
                },
-               getcomment:function(){
+               /*getcomment:function(){
                     var n=this.comments.length;
                     for(var i=n;i<n+10;i++){
                         this.comments.push({
@@ -271,7 +272,7 @@
                     this.getcomment();
                     //DOM更新完成之后再跳回到原来的位置
                     this.$nextTick(()=>{document.documentElement.scrollTop=tmp;})
-               },
+               },*/
                getuserinfo:function(user_id){
                     if(!window.localStorage["token"]){
                         return;
