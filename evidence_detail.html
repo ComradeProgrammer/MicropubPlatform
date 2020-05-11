@@ -9,7 +9,7 @@
         <script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
         <script src="https://cdn.staticfile.org/axios/0.18.0/axios.min.js"></script>
-        <title></title>
+        <title>微证据详情</title>
     </head>
     <body>
         <div id='app'>
@@ -51,7 +51,7 @@
                         <div style="text-align: right;">发表于:{{comment.date}}<br></div>
                     </div>
 
-                    <div class="main middle-body" v-bind:style="{'background-color':styleobject.front,'text-align':'center',width:'100%',margin:'0 auto'}" v-on:click="morecomments()">
+                    <div class="main middle-body" v-bind:style="{'background-color':styleobject.front,'text-align':'center',width:'100%',margin:'0 auto','cursor':'pointer'}" v-on:click="morecomments()">
                         点击加载更多
                     </div>
                 </div>
