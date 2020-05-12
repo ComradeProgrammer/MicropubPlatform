@@ -214,12 +214,14 @@
                         },
                     }).then(
                         response=>{
-                            if(response.data.author.id!=window.localStorage["id"]){
+                            debugger
+                            if(response.data.author_id!=window.localStorage["id"]){
                                 alert("您无权修改此微证据");
                                 window.history.back(-1);
                             }
                             else{
                                 //todo: api test
+                                
                                 this.header=response.data.title;
                                 this.content=response.data.summary;
                                 this.reference=response.data.reference;

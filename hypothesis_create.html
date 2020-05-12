@@ -248,7 +248,69 @@
                             alert("发布失败");
                         }.bind(this));
                     }
-                }
+                    else if(this.type==1){
+                        axios({
+                            method: 'put',
+                            url:'http://114.116.53.43/api/microcons/'+this.getQueryVariable("id"),
+                            headers:{
+                                'Content-Type': 'application/json',
+                                'Cache-Control': 'no-cache',
+                                'Authorization':'Bearer '+window.localStorage["token"],
+                            },
+                            data:JSON.stringify(bundle),
+                        }).then(
+                            response=>{
+                                console.log(response);
+                                alert("发布成功");
+                                window.history.back(-1);
+                            }
+                        ).catch(function (error) {
+                            console.log(error.response)
+                            if(error.response.status==400){
+                                if(!error.response.data.message){
+                                    window.location.href="login.html?type=1";
+                                    return;
+                                } 
+                            }
+                            alert("发布失败");
+                        }.bind(this));
+                    }
+                },
+                get_evidence_data:function(x){
+                    // todo: api test
+                    var evidence_id=x==1?this.evidence1:this.evidence2;
+                    axios({
+                        method: 'get',
+                        url:'http://114.116.53.43/api/micropubs/'+evidence_id,
+                        headers:{
+                            'Content-Type': 'application/json',
+                            'Cache-Control': 'no-cache',
+                            'Authorization':'Bearer '+window.localStorage["token"],
+                        },
+                    }).then(
+                        response=>{
+                            if(evidence_id==1){
+                                this.evidence1_header=response.data.title;
+                            }
+                            else{
+                                this.evidence2_header=response.data.title;
+                            }
+                        }
+                    ).catch(function (error) {
+                        console.log(error.response)
+                        if(error.response.status==400){
+                            if(!error.response.data.message){
+                                window.location.href="login.html?type=1";
+                                return;
+                            } 
+                        }
+                        else if(error.response==404){
+                            alert("该微猜想不存在或已被删除");
+                            window.history.back(-1);
+                        }
+                    }.bind(this));
+                    
+               },
                
             },
             mounted(){
@@ -263,6 +325,55 @@
                 document.querySelector('body').style.backgroundImage=this.styleobject.bgpic;
                 document.querySelector('body').style.backgroundAttachment="fixed";
                 document.querySelector('body').style.backgroundSize='cover';
+                if(this.getQueryVariable("type")){
+                    this.type=this.getQueryVariable("type");
+                    if(!this.getQueryVariable("id")){
+                        alert("非法页面");
+                        window.history.back(-1);
+                    }
+                    var id=this.getQueryVariable("id");
+                    axios({
+                        method: 'get',
+                        url:'http://114.116.53.43/api/microcons/'+id,
+                        headers:{
+                            'Content-Type': 'application/json',
+                            'Cache-Control': 'no-cache',
+                            'Authorization':'Bearer '+window.localStorage["token"],
+                        },
+                    }).then(
+                        response=>{
+                            debugger
+                            console.log(response.data)
+                            this.title=response.data.title;
+                            this.summary=response.data.summary;
+                            this.evidence1=response.data.micropubs[0];
+                            this.evidence2=response.data.micropubs[1];
+                            this.get_evidence_data(1);
+                            this.get_evidence_data(2);
+                            this.tags_count=response.data.tags.length
+                            this.$nextTick(
+                                ()=>{
+                                    for(var i=0;i<response.data.tags.length;i++){
+                                        document.getElementsByClassName("tags")[i].value=response.data.tags[i];
+                                    }
+                                })
+                            
+                        }
+                    ).catch(function (error) {
+                        
+                        console.log(error.response)
+                        if(error.response.status==400){
+                            if(!error.response.data.message){
+                                window.location.href="login.html?type=1";
+                                return;
+                            } 
+                        }
+                        else if(error.response==404){
+                            alert("该微猜想不存在或已被删除");
+                            window.history.back(-1);
+                        }
+                    }.bind(this));
+                }
             }
         })
     </script>

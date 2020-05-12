@@ -46,10 +46,18 @@
                     <div class="main middle-body" v-bind:style="{'background-color':styleobject.front,'font-size':'20px'}">
                         评论区
                     </div>
+                    <div class="main middle-body" v-bind:style="{'background-color':styleobject.front,'font-size':'0'}"
+                    v-show="input_comment">
+                        <textarea type="input" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content,height:'100px','padding-top':0}" v-model="new_comment"></textarea>
+                        <button v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode,}"
+                        style="margin:10px;" v-on:click="send_comment">发表评论</button>
+                    </div>
+
                     <div v-for="comment in comments" class="main comment" v-bind:style="{'background-color':styleobject.front}">
-                        <a href>@{{comment.username}}</a>:{{comment.content}}
+                        <a  v-bind:href="'userinfo.html?id='+comment.id">@{{comment.username}}</a>:{{comment.content}}
                         <div style="text-align: right;">发表于:{{comment.date}}<br></div>
                     </div>
+
                     <div class="main middle-body" v-bind:style="{'background-color':styleobject.front,'text-align':'center',width:'100%',margin:'0 auto','cursor':'pointer'}" v-show="comments.length==0">
                         暂无评论
                     </div>
@@ -75,20 +83,20 @@
                                 <td>{{remark}}</td>
                             </tr></tbody>
                         </table>
-                            <div class="btn-group" style="width:99%">
-                                <button v-bind:class="{btn:true,leftbutton:true,
-                                    'btn-outline-primary':!darkmode&&!liked,'btn-outline-success':darkmode&&!liked,
-                                    'btn-primary':!darkmode&&liked,'btn-success':darkmode&&liked}" v-on:click="like_click">
-                                    {{liked?'已点赞':'点赞'}}</button>
-                                <button v-bind:class="{btn:true,leftbutton:true,
-                                    'btn-outline-primary':!darkmode&&!collected,'btn-outline-success':darkmode&&!collected,
-                                    'btn-primary':!darkmode&&collected,'btn-success':darkmode&&collected}" v-on:click="collect_click">
-                                    {{collected?'已收藏':'收藏'}}</button>
-                                <button v-bind:class="{btn:true,leftbutton:true,'btn-outline-primary':!darkmode,'btn-outline-success':darkmode}">评论</button>
-                            </div>
-                            <template v-if="modify">
-                                <button v-bind:class="{btn:true,leftbutton:true,'btn-primary':!darkmode,'btn-success':darkmode}" style="width: 99%;margin-top: 5px;" v-on:click="goto_modify">修改此微证据</button>
-                                <!--button class="btn btn-danger" style="width: 99%;margin-top: 2px;" v-on:click="goto_delete">删除此微证据</button-->
+                        <div class="btn-group" style="width:99%">
+                            <button v-bind:class="{btn:true,leftbutton:true,
+                                'btn-outline-primary':!darkmode&&!liked,'btn-outline-success':darkmode&&!liked,
+                                'btn-primary':!darkmode&&liked,'btn-success':darkmode&&liked}" v-on:click="like_click">
+                                {{liked?'已点赞':'点赞'}}</button>
+                            <button v-bind:class="{btn:true,leftbutton:true,
+                                'btn-outline-primary':!darkmode&&!collected,'btn-outline-success':darkmode&&!collected,
+                                'btn-primary':!darkmode&&collected,'btn-success':darkmode&&collected}" v-on:click="collect_click">
+                                {{collected?'已收藏':'收藏'}}</button>
+                            <button v-bind:class="{btn:true,leftbutton:true,'btn-outline-primary':!darkmode,'btn-outline-success':darkmode}" v-on:click="input_comment=!input_comment">评论</button>
+                        </div>
+                        <template v-if="modify">
+                            <button v-bind:class="{btn:true,leftbutton:true,'btn-primary':!darkmode,'btn-success':darkmode}" style="width: 99%;margin-top: 5px;" v-on:click="goto_modify">修改此微证据</button>
+                            <!--button class="btn btn-danger" style="width: 99%;margin-top: 2px;" v-on:click="goto_delete">删除此微证据</button-->
                         </template>
                     </div>
                     <div class="main right-bar" v-bind:style="{'background-color':styleobject.front,'text-align':'center'}">
@@ -156,7 +164,9 @@
                 //评论区详情
                 comments:[],
                 //userinfo
-                userinfo:{}
+                userinfo:{},
+                new_comment:"",
+                input_comment:false
             },
             computed:{
                 styleobject:function(){
@@ -203,13 +213,21 @@
                             this.content=response.data.summary;
                             this.like=response.data.likes;
                             this.view=response.data.views;
-                            this.remark="???";
+                            this.remark=response.data.comments.length;
                             this.collected=response.data.is_collected;
                             this.liked=response.data.is_liked;
                             this.time=response.data.timestamp;
                             this.topics=response.data.tags;
                             this.hrefs=response.data.reference.split("\n");
-                            this.comments=response.data.comments;
+                            this.comments.splice(0,this.comments);
+                            for(var i=0;i<this.remark;i++){
+                                this.comments.push({
+                                    username:response.data.comments[i].author.username,
+                                    content:response.data.comments[i].body,
+                                    date:response.data.comments[i].timestamp,
+                                    id:response.data.comments[i].author.id,
+                                })
+                            }
                             if(response.data.author_id==window.localStorage["id"]){
                                 this.modify=true;
                             }
@@ -233,13 +251,7 @@
                },
                /*getcomment:function(){
                     var n=this.comments.length;
-                    for(var i=n;i<n+10;i++){
-                        this.comments.push({
-                            username:"testuser"+i,
-                            account:"account"+i,
-                            content:i+"十五字真言十五字真言十五字真言十五字真言十五字真言十五字真言十五字真言十五字真言十五字真言",
-                            date:"1991-12-25",
-                        })
+                    
                     }
                },
                morecomments:function(){
@@ -401,6 +413,44 @@
                         }
                         else if(error.response.status==403){
                             alert("您无权删除此猜想");
+                            window.history.back(-1);
+                        }
+                        console.log(error.response)
+                    }.bind(this))
+                },
+                send_comment(){
+                    if(this.new_comment==""){
+                        return;
+                    }
+                    var bundle={
+                        body:this.new_comment,
+                        'micropub_id':this.getQueryVariable("id")
+                    }
+                    axios({
+                        method: 'post',
+                        url:'http://114.116.53.43/api/comments/',
+                        headers:{
+                            'Content-Type': 'application/json',
+                            'Cache-Control': 'no-cache',
+                            'Authorization':'Bearer '+window.localStorage["token"],
+                        },
+                        data:JSON.stringify(bundle),
+                    }).then(
+                        response=>{
+                            debugger
+                            alert("评论成功")
+                            window.location.reload();
+                        } 
+                    ).catch(function (error) {
+                        debugger
+                        if(error.response.status==400){
+                            if(!error.response.data.message){
+                                window.location.href="login.html?type=1";
+                                return;
+                            } 
+                        }
+                        else if(error.response==404){
+                            alert("该微猜想不存在或已被删除");
                             window.history.back(-1);
                         }
                         console.log(error.response)
