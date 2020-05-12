@@ -32,10 +32,6 @@
                                 <span v-if="userinfo.valid&&userinfo.administrator"class="badge badge-warning">管理员</span>
                                 <span v-if="userinfo.valid&&userinfo.forbidden" class="badge badge-danger">封禁中</span>
                             </h3>
-                            <!--
-                            <span v-bind:class="{badge:true,'badge-pill':true,'badge-primary':!darkmode,'badge-success':darkmode}">计算机体系结构</span>
-                            <span v-bind:class="{badge:true,'badge-pill':true,'badge-primary':!darkmode,'badge-success':darkmode}">IEEE</span>
-                            -->
                         </h1>
                         
                     </div>
@@ -55,6 +51,7 @@
                         style="width: 100%; margin-bottom: 3px;" v-on:click="followbuttonclick">{{userinfo.following?'取消关注':'关注Ta'}}</button>
                         <button type="button" v-bind:class="{btn:true,'btn-outline-primary':!darkmode,'btn-outline-success':darkmode}"
                         style="width: 100%;" v-on:click="send_message">向Ta发站内信</button>
+                        
                     </div>
                    
                 </div>
@@ -160,14 +157,9 @@
                                 <td style="text-align: center;">{{userinfo.followedpubs}}</td>
                             </tr></tbody>
                         </table>
-                        <!--
-                        邮箱:{{userinfo.email}}<br>
-                        
-                        个人主页:xxxxxxxxxx.com<br>
-                        住址:xxxxxxxxxxxxxx<br>
-                        职业:xxxxxxxxxxxxxxx<br>
-                        -->
                         注册时间:{{userinfo.registerdate}}<br>
+                        <!--button type="button" class="btn btn-danger"
+                        style="width: 100%;">屏蔽此人</button-->
                         <div style="height: 5px;"></div>
                     </div>
                 </div>
@@ -275,7 +267,6 @@
                                 forbidden:false,
                                 administrator:false,
                                 micropub:response.data.micropubs_count,
-
                                 followed:response.data.followers_count,
                                 following_count:response.data.followeds_count,
                                 avatar:response.data._links.avatar,
@@ -533,8 +524,6 @@
                     window.location.href="hypothesis_detail.html?id="+id;
                 },
                 gethypothesis:function(){
-                    //todo test api
-                    debugger
                     var target=this.getQueryVariable("id");
                     if(!this.hasnext){
                         return;
@@ -593,7 +582,6 @@
                 this.getuserinfo();
                 this.changemode(0);
                 this.windowwidth=document.body.clientWidth;
-                
                 window.onresize=()=>{
                     this.windowwidth=document.body.clientWidth;
                 }

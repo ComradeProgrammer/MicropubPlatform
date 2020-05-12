@@ -125,25 +125,34 @@
                         this.receive_page++;
                         axios({
                             method: 'get',
-                            url:'http://114.116.53.43/api/users/'+window.localStorage["id"]+'/messages-senders?page='+this.receice_page+'&per_page=10',
+                            url:'http://114.116.53.43/api/users/'+window.localStorage["id"]+'/messages?page='+this.receive_page+'&per_page=10',
                             headers:{
                                 'Cache-Control': 'no-cache',
                                 'Authorization':'Bearer '+window.localStorage["token"],
-                            },
-                            
+                            },   
                         }).then(
                             response=>{
                                 this.receive_hasnext=response.data._links.next!=null;
-                                //debugger
+                                debugger
                                 for(var i=0;i<response.data.items.length;i++){
-                                    this.message_list.push({
+                                    var tmp={
                                         id:response.data.items[i].id,
                                         content:response.data.items[i].body,
                                         newmsg:response.data.items[i].is_new?response.data.items[i].new_count:0,
                                         user_id:response.data.items[i].sender.id,
                                         user_name:response.data.items[i].sender.username,
                                         avatar:response.data.items[i].sender._links.avatar,
-                                    })
+                                    }
+                                    if(response.data.items[i].sender.id==window.localStorage["id"]){
+                                        tmp["user_id"]=response.data.items[i].recipient.id
+                                        tmp['user_name']=response.data.items[i].recipient.username
+                                    }
+                                    else{
+                                        tmp["user_id"]=response.data.items[i].sender.id
+                                        tmp['user_name']=response.data.items[i].sender.username
+                                    }
+                                  
+                                    this.message_list.push(tmp)
                                 }
                             }
                         ).catch(function (error) {
@@ -153,45 +162,8 @@
                             else if(error.response.status==404){
                                 window.location.href="login.html"
                             }
-                            //console.log(error.response);
                         }.bind(this));
                     }
-                    //debugger
-                    if(this.send_hasnext){
-                        this.send_page++;
-                        axios({
-                            method: 'get',
-                            url:'http://114.116.53.43/api/users/'+window.localStorage["id"]+'/messages-recipients?page='+this.send_page+'&per_page=10',
-                            headers:{
-                                'Cache-Control': 'no-cache',
-                                'Authorization':'Bearer '+window.localStorage["token"],
-                            },
-                            
-                        }).then(
-                            response=>{
-                                this.send_hasnext=response.data._links.next!=null;
-                                //debugger
-                                for(var i=0;i<response.data.items.length;i++){
-                                    this.message_list.push({
-                                        id:response.data.items[i].id,
-                                        content:response.data.items[i].body,
-                                        newmsg:response.data.items[i].is_new?response.data.items[i].new_count:0,
-                                        user_id:response.data.items[i].recipient.id,
-                                        user_name:response.data.items[i].recipient.username,
-                                        avatar:response.data.items[i].recipient._links.avatar,
-                                    })
-                                }
-                            }
-                        ).catch(function (error) {
-                            if(error.response.status==400){
-                                window.location.href="login.html?type=1" 
-                            }
-                            else if(error.response.status==404){
-                                window.location.href="login.html"
-                            }
-                            //console.log(error.response);
-                        }.bind(this));
-                    } 
                 },
                 //右侧的会话界面进行重新获取，ref参数表示是不是在进行对最后一页刷新
                 get_first_detail(ref){
@@ -243,9 +215,6 @@
                             
                         }).then(
                             response=>{
-                                
-                                //debugger
-                                
                                 this.detail_page--;
                                 this.detail_totalpage=response.data._meta.total_pages;
                                 //console.log(response)
@@ -284,7 +253,6 @@
                             else if(error.response.status==404){
                                 window.location.href="login.html"
                             }
-                            //console.log(error.response);
                         }.bind(this));
                      
                 },
@@ -309,14 +277,12 @@
                     }).then(
                         response=>{
                             //alert("发送成功");
-                            //console.log(response);
                             this.send_msg="";
                             this.get_first_detail(false);
                             document.getElementsByClassName("rightcontent")[0].scrollTop=document.getElementsByClassName("rightcontent")[0].scrollHeight;
                         }
                         
                     ).catch(function (error) {
-                        //console.log(error.response)
                         if(error.response.status==400){
                             if(!error.response.data.message){
                                 //没有message 是登录失败
@@ -331,7 +297,6 @@
                 },
                 refresh:function(){
                     if(this.detail&&this.detail_page==this.detail_totalpage-1){
-                        //console.log("test");
                         this.get_first_detail(true);
                     }
                 },

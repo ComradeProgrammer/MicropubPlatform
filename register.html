@@ -111,11 +111,6 @@
                     document.querySelector('body').style.backgroundImage=this.styleobject.bgpic;
                     window.localStorage["dark"]=this.darkmode;
                 },
-                /*gettags:function(){
-                    for(var i=0;i<10;i++){
-                        this.tags.push('interst point '+i);
-                    }
-                },*/
                 submit:function(){
                     if(this.password==""||this.account==""||this.email==""){
                         alert("请输入每个必选项")
@@ -146,7 +141,13 @@
                     ).catch(function (error) {
                         if(error.response.status==400&&error.response.statusText=="BAD REQUEST"){
                             if(error.response.data.message.email){
-                                alert("邮箱已被注册")
+                                if(error.response.data.message.email=="Please provide a valid email address."){
+                                    alert("邮箱不合法")
+                                }
+                                else{
+                                    alert("邮箱已被注册")
+                                }
+                                
                             }
                             else if(error.response.data.message.email){
                                 alert("用户名已被占用")

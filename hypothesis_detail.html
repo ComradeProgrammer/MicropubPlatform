@@ -41,14 +41,14 @@
                         <span style="font-size: 20px;">{{content}}</span>
                         <hr v-bind:style="{border:'1px solid '+styleobject.content,margin:'3px'}">
                         <div v-if="state==0" style="text-align:center;width:100%">
-                            <button class="btn btn-danger">否定微猜想</button>
+                            <button class="btn btn-danger" v-on:click="judge(false)">否定微猜想</button>
                             <div style="width:50%;display: inline-block;">
                                 <div class="progress" >
                                     <div class="progress-bar bg-danger progress-bar-striped" v-bind:style="{width:100-probar+'%'}">{{con}}</div>
                                     <div class="progress-bar bg-success progress-bar-striped" v-bind:style="{width:probar+'%'}">{{pro}}</div> 
                                 </div>
                             </div>
-                            <button class="btn btn-success">肯定微猜想</button>
+                            <button class="btn btn-success" v-on:click="judge(true)">肯定微猜想</button>
                         </div>
                     </div>
                     <!--评论区-->
@@ -225,7 +225,6 @@
                     return(false);
                 },
                getdata:function(){
-                    // todo: api test
                     var id=this.getQueryVariable("id");
                     axios({
                         method: 'get',
@@ -237,8 +236,7 @@
                         },
                     }).then(
                         response=>{
-                            debugger
-                            console.log(response.data)
+                            console.log(response)
                             this.header=response.data.title;
                             this.content=response.data.summary;
                             this.like=response.data.likes;
@@ -249,6 +247,8 @@
                             this.time=response.data.timestamp,
                             this.topics=response.data.tags;
                             this.comments.splice(0,this.comments);
+                            this.pro=response.data.pros_num;
+                            this.con=response.data.cons_num;
                             for(var i=0;i<this.remark;i++){
                                 this.comments.push({
                                     username:response.data.comments[i].author.username,
@@ -264,38 +264,22 @@
                             this.getuserinfo(response.data.author_id);
                         }
                     ).catch(function (error) {
-                        
-                        console.log(error.response)
                         if(error.response.status==400){
                             if(!error.response.data.message){
                                 window.location.href="login.html?type=1";
                                 return;
                             } 
                         }
-                        else if(error.response==404){
+                        else if(error.response.status==404){
                             alert("该微猜想不存在或已被删除");
+                            window.history.back(-1);
+                        }
+                        else if(error.response.status==403){
+                            alert("您没有相应权限");
                             window.history.back(-1);
                         }
                     }.bind(this));
                },
-               /*getcomment:function(){
-                    var n=this.comments.length;
-                    for(var i=n;i<n+10;i++){
-                        this.comments.push({
-                            username:"testuser"+i,
-                            account:"account"+i,
-                            content:i+"十五字真言十五字真言十五字真言十五字真言十五字真言十五字真言十五字真言十五字真言十五字真言",
-                            date:"1991-12-25",
-                        })
-                    }
-               },
-               morecomments:function(){
-                   //记住页面位置
-                    var tmp=document.documentElement.scrollTop
-                    this.getcomment();
-                    //DOM更新完成之后再跳回到原来的位置
-                    this.$nextTick(()=>{document.documentElement.scrollTop=tmp;})
-               },*/
                getuserinfo:function(user_id){
                     if(!window.localStorage["token"]){
                         return;
@@ -309,7 +293,6 @@
                         },
                     }).then(
                         response=>{
-                            //console.log(response)
                             this.userinfo={
                                 valid:true,
                                 id:user_id,
@@ -323,23 +306,18 @@
                             }
                         } 
                     ).catch(function (error) {
-                        //debugger
                         if(error.response.status==400){
                             if(!error.response.data.message){
                                 window.location.href="login.html?type=1";
                                 return;
                             } 
                         }
-                        if(error.response.status==404){
+                        else{
                             alert("发生错误");
-                            //window.history.back(-1);
                         }
-
-                        console.log(error.response)
                     }.bind(this))
                 },
                 like_click:function(){
-                    // todo api test
                     var id=this.getQueryVariable("id");
                     var api="";
                     if(this.liked){
@@ -357,10 +335,10 @@
                         },
                     }).then(
                         response=>{
-                            console.log(response)
-                            window.location.reload();
                             //todo remove reload?
                             //this.liked=!this.liked;
+                            console.log(response)
+                            window.location.reload();
                         } 
                     ).catch(function (error) {
                         if(error.response.status==400){
@@ -373,13 +351,15 @@
                             alert("该微猜想不存在或已被删除");
                             window.history.back(-1);
                         }
-                        console.log(error.response)
+                        else if(error.response.status==403){
+                            alert("您没有相应权限");
+                            window.history.back(-1);
+                        }
                     }.bind(this))
                 },
                 collect_click:function(){
                     var id=this.getQueryVariable("id");
                     var api="";
-                    // todo test api
                     if(this.collected){
                         api="http://114.116.53.43/api/microcons/"+id+"/uncollect"
                     }
@@ -411,7 +391,10 @@
                             alert("该微猜想不存在或已被删除");
                             window.history.back(-1);
                         }
-                        console.log(error.response)
+                        else if(error.response.status==403){
+                            alert("您没有相应权限");
+                            window.history.back(-1);
+                        }
                     }.bind(this))
                 },
                 goto_modify:function(){
@@ -437,12 +420,10 @@
                         data:JSON.stringify(bundle),
                     }).then(
                         response=>{
-                            debugger
                             alert("评论成功")
                             window.location.reload();
                         } 
                     ).catch(function (error) {
-                        debugger
                         if(error.response.status==400){
                             if(!error.response.data.message){
                                 window.location.href="login.html?type=1";
@@ -453,9 +434,50 @@
                             alert("该微猜想不存在或已被删除");
                             window.history.back(-1);
                         }
+                        else if(error.response.status==403){
+                            alert("您没有相应权限");
+                            window.history.back(-1);
+                        }
                         console.log(error.response)
                     }.bind(this))
+                },
+                judge(res){
+                    if(res){
+                        api='http://114.116.53.43/api/microcons/'+this.getQueryVariable("id")+'/pro'
+                    }
+                    else{
+                        api='http://114.116.53.43/api/microcons/'+this.getQueryVariable("id")+'/con'
+                    }
+                    axios({
+                        method: 'get',
+                        url:api,
+                        headers:{
+                            'Cache-Control': 'no-cache',
+                            'Authorization':'Bearer '+window.localStorage["token"],
+                        },
+                    }).then(
+                        response=>{
+                            console.log(response)
+                            alert("评价成功")
+                            window.location.reload();
+                        } 
+                    ).catch(function (error) {
+                        if(error.response.status==400){
+                            if(!error.response.data.message){
+                                window.location.href="login.html?type=1";
+                                return;
+                            } 
+                        }
+                        else if(error.response.status==403){
+                            alert("您没有相应权限");
+                            window.history.back(-1);
+                        }
+                        else {
+                            alert("您已经评价过该猜想")
+                        }
+                    }.bind(this))
                 }
+               
                 
             },
             mounted(){

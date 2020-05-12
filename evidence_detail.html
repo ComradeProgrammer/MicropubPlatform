@@ -234,6 +234,7 @@
                             this.getuserinfo(response.data.author_id);
                         }
                     ).catch(function (error) {
+                        debugger
                         console.log(error);
                         console.log(error.response)
                         if(error.response.status==400){
@@ -246,21 +247,13 @@
                             alert("该微证据不存在或已被删除");
                             window.history.back(-1);
                         }
+                        else if(error.response.status==403){
+                            alert("您没有相应权限");
+                            window.history.back(-1);
+                        }
                     }.bind(this));
                     
                },
-               /*getcomment:function(){
-                    var n=this.comments.length;
-                    
-                    }
-               },
-               morecomments:function(){
-                   //记住页面位置
-                    var tmp=document.documentElement.scrollTop
-                    this.getcomment();
-                    //DOM更新完成之后再跳回到原来的位置
-                    this.$nextTick(()=>{document.documentElement.scrollTop=tmp;})
-               },*/
                getuserinfo:function(user_id){
                     if(!window.localStorage["token"]){
                         return;
@@ -300,7 +293,6 @@
                             alert("发生错误");
                             window.history.back(-1);
                         }
-
                         console.log(error.response)
                     }.bind(this))
                 
@@ -339,7 +331,10 @@
                             alert("该微证据不存在或已被删除");
                             window.history.back(-1);
                         }
-                        console.log(error.response)
+                        else if(error.response.status==403){
+                            alert("您没有相应权限");
+                            window.history.back(-1);
+                        }
                     }.bind(this))
                 },
                 collect_click:function(){
@@ -377,7 +372,10 @@
                             alert("该微证据不存在或已被删除");
                             window.history.back(-1);
                         }
-                        console.log(error.response)
+                        else if(error.response.status==403){
+                            alert("您没有相应权限");
+                            window.history.back(-1);
+                        }
                     }.bind(this))
                 },
                 goto_modify:function(){
@@ -415,7 +413,6 @@
                             alert("您无权删除此微证据");
                             window.history.back(-1);
                         }
-                        console.log(error.response)
                     }.bind(this))
                 },
                 send_comment(){
@@ -437,12 +434,10 @@
                         data:JSON.stringify(bundle),
                     }).then(
                         response=>{
-                            debugger
                             alert("评论成功")
                             window.location.reload();
                         } 
                     ).catch(function (error) {
-                        debugger
                         if(error.response.status==400){
                             if(!error.response.data.message){
                                 window.location.href="login.html?type=1";
@@ -453,10 +448,12 @@
                             alert("该微猜想不存在或已被删除");
                             window.history.back(-1);
                         }
-                        console.log(error.response)
+                        else if(error.response.status==403){
+                            alert("您没有相应权限");
+                            window.history.back(-1);
+                        }
                     }.bind(this))
-                }
-               
+                },
             },
             mounted(){
                 if(!window.localStorage["dark"]||window.localStorage["dark"]=="false"){
@@ -476,7 +473,6 @@
                     window.history.back(-1);
                 }
                 this.getdata(id);
-                //this.getcomment();
             }
         })
     </script>
