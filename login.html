@@ -125,6 +125,7 @@
                         }
                     }).then(
                         response=>{
+                            debugger
                             window.localStorage["token"]=response.data.token;
                             window.localStorage["id"]=response.data.id;
                             if(this.getQueryVariable("type")==1){
@@ -139,7 +140,7 @@
                         if(error.response.status!=200){
                             this.message_status=false;
                         }
-                        console.log(error);
+                        console.log(error.response);
                     }.bind(this));
                 },
                 getQueryVariable:function (variable){

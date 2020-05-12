@@ -23,10 +23,10 @@
             <div class="container-fluid" style="margin-top:30px;">
                 <div class="main middle" v-bind:style="{'background-color':styleobject.front}">
                     <div style="width:80%;font-size: 20px;margin:0 auto">
-                        <label>微证据猜想</label>
-                        <input type="input" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content}">
+                        <label>微猜想标题</label>
+                        <input type="input" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content}" v-model="title">
                         <label>微猜想内容</label>
-                        <textarea type="input" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content,height:'150px'}"></textarea>
+                        <textarea type="input" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content,height:'150px'}" v-model="summary"></textarea>
                         <hr v-bind:style="{border:'1px solid '+styleobject.content,margin:'5px'}">
                         <label>为你的微猜想添加标签(至少1个)</label><br>
                             <button v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}" style="float:right;"
@@ -49,7 +49,7 @@
                         <button type="button" v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"
                         v-on:click="choose_evidence(2)" style="float: right;">从收藏夹中选择</button><br>
                         
-                        <button type="button" v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}" style="margin:0 auto;margin-top:10px;width:100%">提交</button><br>
+                        <button type="button" v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}" style="margin:0 auto;margin-top:10px;width:100%" v-on:click="submit">提交</button><br>
                         <div style="height:50px"></div>
                     </div>
                 </div>
@@ -65,7 +65,7 @@
                         </select>
                         <div style="height: 5px;"></div>
                         <button type="button" v-bind:class="{btn:true,'btn-outline-primary':!darkmode,'btn-outline-success':darkmode}"
-                        style="width: 95%;margin:5px" v-on:click="get_collections">{{colection_hasnext?'加载更多':'没有更多内容'}}</button>
+                        style="width: 95%;margin:5px" v-on:click="get_collections">{{collection_hasnext?'加载更多':'没有更多内容'}}</button>
                         <button type="button" v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"
                         style="width: 95%;" v-on:click="choose_finish">确认</button>
                         <div style="height: 20px;"></div>
@@ -105,7 +105,7 @@
                 current_editing:1,
                 //收藏夹数据
                 collections:[],
-                colection_hasnext:true,
+                collection_hasnext:true,
                 collection_currentpage:0,
                 //双向绑定
                 title:"",
@@ -114,9 +114,8 @@
                 evidence2:"",
                 evidence1_header:"",
                 evidence2_header:"",
-                //
-                
                 tags_count:1,
+                type:0
 
             },
             computed:{
@@ -130,6 +129,15 @@
                 },  
             },
             methods:{
+                getQueryVariable:function (variable){
+                    var query = window.location.search.substring(1);
+                    var vars = query.split("&");
+                    for (var i=0;i<vars.length;i++) {
+                        var pair = vars[i].split("=");
+                        if(pair[0] == variable){return pair[1];}
+                    }
+                    return(false);
+                },
                 switchtheme:function(){
                     this.darkmode=!this.darkmode;
                     document.querySelector('body').style.backgroundColor=this.styleobject.background;
@@ -143,25 +151,25 @@
                     this.evidence_from_collection={},
                     this.pop="block";
                     this.collection_currentpage=0;
+                    this.collection_hasnext=true
                     this.get_collections();
                 },
                 choose_finish:function(){
-                    //debugger
+                    debugger
                     this.pop="none";
                     if(this.current_editing==1){
                         this.evidence1=this.evidence_from_collection.id;
                         this.evidence1_header=this.evidence_from_collection.title;
-                        console.log(this.evidence_from_collection.header)
-                        console.log(this.evidence1_header)
                     }
                     else if(this.current_editing==2){
-                        this.evidence2=this.evidence_from_collection;
+                        this.evidence2=this.evidence_from_collection.id;
                         this.evidence2_header=this.evidence_from_collection.title;
                     }
                 },
                 get_collections(){
                     //TODO api test
-                    if(!this.colection_hasnext){
+                    this.collections.splice(0,this.collections.length)
+                    if(!this.collection_hasnext){
                         return;
                     }
                     this.collection_currentpage++;
@@ -177,9 +185,9 @@
                         response=>{
                             debugger
                             console.log(response)
-                            this.hasnext=response.data._links.next!=null;
+                            this.collection_hasnext=response.data._links.next!=null;
                             for(var i=0;i<response.data.items.length;i++){
-                                this.maindata.push({
+                                this.collections.push({
                                     id:response.data.items[i].id,
                                     title:response.data.items[i].title,
                                 })
@@ -197,6 +205,49 @@
                         }
                         console.log(error.response);
                     }.bind(this));
+                },
+                submit:function(){
+                    if(this.header==""||this.content==""||this.evidence1==""||this.evidence2==""){
+                        return
+                    }
+                    var tags=[];
+                    for(var i=0;i<this.tags_count;i++){
+                        tags.push(document.getElementsByClassName("tags")[i].value);
+                    }
+                    var bundle={
+                        title:this.title,
+                        summary:this.summary,
+                        micropubs_ids:[this.evidence1,this.evidence2],
+                        tags:tags,
+                    };
+                    if(this.type==0){
+                        //new publication
+                        axios({
+                            method: 'post',
+                            url:'http://114.116.53.43/api/microcons',
+                            headers:{
+                                'Content-Type': 'application/json',
+                                'Cache-Control': 'no-cache',
+                                'Authorization':'Bearer '+window.localStorage["token"],
+                            },
+                            data:JSON.stringify(bundle),
+                        }).then(
+                            response=>{
+                                console.log(response);
+                                alert("发布成功");
+                                window.history.back(-1);
+                            }
+                        ).catch(function (error) {
+                            console.log(error.response)
+                            if(error.response.status==400){
+                                if(!error.response.data.message){
+                                    window.location.href="login.html?type=1";
+                                    return;
+                                } 
+                            }
+                            alert("发布失败");
+                        }.bind(this));
+                    }
                 }
                
             },
