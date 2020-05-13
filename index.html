@@ -330,8 +330,8 @@
                             this.userinfo={
                                 valid:true,
                                 username:response.data.username,
-                                forbidden:false,
-                                administrator:false,
+                                forbidden:response.data.role_id==1,
+                                administrator:response.data.role_id==4,
                                 micropub:response.data.micropubs_count,
                                 followed:response.data.followers_count,
                                 following:response.data.followeds_count,
