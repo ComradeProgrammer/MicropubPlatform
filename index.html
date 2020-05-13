@@ -119,7 +119,7 @@
                         <img v-bind:src="userinfo.avatar?userinfo.avatar:'static/img/avater.jpg'" class="avatar">
                         <hr v-bind:style="{border:'1px solid '+styleobject.content,margin:'2px'}">
                         你好,{{userinfo.valid?userinfo.username:'游客'}}<br>
-                        <span v-if="userinfo.valid" class="badge badge-primary">已注册</span>
+                        <span v-if="userinfo.confirmed" class="badge badge-primary">已注册</span>
                         <span v-if="userinfo.valid&&userinfo.administrator"class="badge badge-warning">管理员</span>
                         <span v-if="userinfo.valid&&userinfo.forbidden" class="badge badge-danger">封禁中</span>
                         <table style="width:100%" v-if="userinfo.valid">
@@ -329,6 +329,7 @@
                             console.log(response)
                             this.userinfo={
                                 valid:true,
+                                confirmed:response.data.confirmed,
                                 username:response.data.username,
                                 forbidden:response.data.role_id==1,
                                 administrator:response.data.role_id==4,
