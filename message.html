@@ -125,7 +125,7 @@
                         this.receive_page++;
                         axios({
                             method: 'get',
-                            url:'http://114.116.53.43/api/users/'+window.localStorage["id"]+'/messages?page='+this.receive_page+'&per_page=10',
+                            url:'http://114.116.53.43/api/users/'+window.localStorage["id"]+'/messages-list?page='+this.receive_page+'&per_page=10',
                             headers:{
                                 'Cache-Control': 'no-cache',
                                 'Authorization':'Bearer '+window.localStorage["token"],

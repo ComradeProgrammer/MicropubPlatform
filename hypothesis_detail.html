@@ -122,7 +122,7 @@
                     <div class="main right-bar" v-bind:style="{'background-color':styleobject.front,'text-align':'center'}">
                         <strong>作者详情</strong><br>
                         {{userinfo.username}}
-                        <span v-if="userinfo.valid" class="badge badge-primary">已注册</span>
+                        <span v-if="userinfo.confirmed" class="badge badge-primary">已注册</span>
                         <span v-if="userinfo.valid&&userinfo.administrator"class="badge badge-warning">管理员</span>
                         <span v-if="userinfo.valid&&userinfo.forbidden" class="badge badge-danger">封禁中</span>
                         <br>
@@ -296,6 +296,7 @@
                             this.userinfo={
                                 valid:true,
                                 id:user_id,
+                                confirmed:response.data.confirmed,
                                 username:response.data.username,
                                 forbidden:response.data.role_id==1,
                                 administrator:response.data.role_id==4,

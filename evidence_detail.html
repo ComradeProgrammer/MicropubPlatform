@@ -104,7 +104,7 @@
                         {{userinfo.username}}<br>
                         <a v-bind:href="'userinfo.html?id='+userinfo.id" style="font-size: 12px;">前往Ta的个人主页></a><br>
                         <img v-bind:src="userinfo.avatar?userinfo.avatar:'static/img/avater.jpg'" class="avatar"><br>
-                        <span v-if="userinfo.valid" class="badge badge-primary">已注册</span>
+                        <span v-if="userinfo.confirmed" class="badge badge-primary">已注册</span>
                         <span v-if="userinfo.valid&&userinfo.administrator"class="badge badge-warning">管理员</span>
                         <span v-if="userinfo.valid&&userinfo.forbidden" class="badge badge-danger">封禁中</span>
                         <table style="width:100%" v-if="userinfo.valid">
@@ -270,7 +270,7 @@
                             //console.log(response)
                             this.userinfo={
                                 valid:true,
-                                //account:'ussr',
+                                confirmed:response.data.confirmed,
                                 id:user_id,
                                 username:response.data.username,
                                 forbidden:response.data.role_id==1,

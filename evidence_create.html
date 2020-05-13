@@ -104,8 +104,8 @@
                     return(false);
                 },
                 submit:function(){
-                    if(this.header==""||this.content==""){
-                        alert("标题和内容不能为空")
+                    if(this.header==""||this.content==""||this.reference==""){
+                        alert("标题,内容和引用不能为空")
                         return
                     }
                     // TODO:api-test
