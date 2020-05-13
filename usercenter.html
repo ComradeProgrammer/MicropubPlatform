@@ -463,7 +463,7 @@
                     }.bind(this));
                 },
                 goto_userinfo:function(x){
-                    window.location.href="userinfo.html?id="+x; 
+                    window.open("userinfo.html?id="+x); 
                 },
                 //修改用户信息
                 changeinformation(){
@@ -592,10 +592,10 @@
                     }.bind(this));
                 },
                 goto_evidence:function(id){
-                    window.location.href="evidence_detail.html?id="+id;
+                    window.open("evidence_detail.html?id="+id);
                 },
                 goto_hypothesis:function(id){
-                    window.location.href="hypothesis_detail.html?id="+id;
+                    window.open("hypothesis_detail.html?id="+id);
                 },
                 changesubmode:function(x){
                     this.submode=x;

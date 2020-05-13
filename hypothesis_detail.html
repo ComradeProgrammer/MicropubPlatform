@@ -32,8 +32,8 @@
                         <!--标题-->
                         <h3>{{header}} 
                             <span v-if="state==0" v-bind:class="{badge:true,'badge-warning':true}">评审中</span>
-                            <span v-if="state==1" v-bind:class="{badge:true,'badge-danger':true}">未通过</span>
-                            <span v-if="state==2" v-bind:class="{badge:true,'badge-success':true}">已通过</span>
+                        <span v-if="state==2" v-bind:class="{badge:true,'badge-danger':true}">未通过</span>
+                        <span v-if="state==1" v-bind:class="{badge:true,'badge-success':true}">已通过</span>
                         </h3>
                     </div>
                     <!--内容-->
@@ -78,8 +78,8 @@
                         <strong>微猜想详情</strong><br>
                         发表时间:{{time}}<br>
                         <span v-if="state==0" v-bind:class="{badge:true,'badge-warning':true}">评审中</span>
-                        <span v-if="state==1" v-bind:class="{badge:true,'badge-danger':true}">未通过</span>
-                        <span v-if="state==2" v-bind:class="{badge:true,'badge-success':true}">已通过</span>
+                        <span v-if="state==2" v-bind:class="{badge:true,'badge-danger':true}">未通过</span>
+                        <span v-if="state==1" v-bind:class="{badge:true,'badge-success':true}">已通过</span>
                         <table style="width:100%;text-align: center;" >
                             <thead>
                                 <th style="color:red">否定</th>
@@ -260,7 +260,7 @@
                             if(response.data.author_id==window.localStorage["id"]){
                                 this.modify=true;
                             }
-                            this.state=0
+                            this.state=response.data.status
                             this.getuserinfo(response.data.author_id);
                         }
                     ).catch(function (error) {
@@ -459,8 +459,14 @@
                     }).then(
                         response=>{
                             console.log(response)
-                            alert("评价成功")
-                            window.location.reload();
+                            if(response.data.status=="failed"){
+                                alert(response.data.message)
+                            }
+                            else{
+                                alert("评价成功")
+                            }
+                            
+                            //window.location.reload();
                         } 
                     ).catch(function (error) {
                         if(error.response.status==400){

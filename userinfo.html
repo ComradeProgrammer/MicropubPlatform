@@ -513,16 +513,16 @@
                     }.bind(this));
                 },
                 goto_evidence:function(id){
-                    window.location.href="evidence_detail.html?id="+id;
+                    window.open("evidence_detail.html?id="+id);
                 },
                 goto_userinfo:function(x){
-                    window.location.href="userinfo.html?id="+x; 
+                    window.open("userinfo.html?id="+x); 
                 },
                 send_message:function(){
-                    window.location.href='message.html?id='+this.getQueryVariable('id');
+                    window.open('message.html?id='+this.getQueryVariable('id'));
                 },
                 goto_hypothesis:function(id){
-                    window.location.href="hypothesis_detail.html?id="+id;
+                    window.open("hypothesis_detail.html?id="+id);
                 },
                 gethypothesis:function(){
                     var target=this.getQueryVariable("id");

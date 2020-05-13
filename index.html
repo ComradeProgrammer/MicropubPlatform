@@ -136,17 +136,17 @@
                         </table>
                         <div style="height:5px"></div>
                         <div class="btn-group-vertical" style="display: block;width:90%;margin: 0 auto;">
-                            <button v-if="userinfo.valid" v-bind:class="{btn:true,'btn-outline-primary':!darkmode,'btn-outline-success':darkmode}" onclick="window.location.href='evidence_create.html'">创建微证据</button>
+                            <button v-if="userinfo.valid" v-bind:class="{btn:true,'btn-outline-primary':!darkmode,'btn-outline-success':darkmode}" onclick="window.open('evidence_create.html')">创建微证据</button>
 
-                            <button v-if="userinfo.valid" v-bind:class="{btn:true,'btn-outline-primary':!darkmode,'btn-outline-success':darkmode}" onclick="window.location.href='hypothesis_create.html'">创建微猜想</button>
+                            <button v-if="userinfo.valid" v-bind:class="{btn:true,'btn-outline-primary':!darkmode,'btn-outline-success':darkmode}" onclick="window.open('hypothesis_create.html')">创建微猜想</button>
 
-                            <button v-if="userinfo.valid" v-bind:class="{btn:true,'btn-outline-primary':!darkmode,'btn-outline-success':darkmode}" onclick="window.location.href='usercenter.html'">个人中心</button>
+                            <button v-if="userinfo.valid" v-bind:class="{btn:true,'btn-outline-primary':!darkmode,'btn-outline-success':darkmode}" onclick="window.open('usercenter.html')">个人中心</button>
 
-                            <button v-if="userinfo.valid" v-bind:class="{btn:true,'btn-outline-primary':!darkmode,'btn-outline-success':darkmode}" onclick="window.location.href='message.html'">我的站内信
+                            <button v-if="userinfo.valid" v-bind:class="{btn:true,'btn-outline-primary':!darkmode,'btn-outline-success':darkmode}" onclick="window.open('message.html')">我的站内信
                             ({{info.unread_messages_count}})</button>
 
 
-                            <button v-if="userinfo.valid" v-bind:class="{btn:true,'btn-outline-primary':!darkmode,'btn-outline-success':darkmode}" onclick="window.location.href='systeminfo.html'">系统消息
+                            <button v-if="userinfo.valid" v-bind:class="{btn:true,'btn-outline-primary':!darkmode,'btn-outline-success':darkmode}" onclick="window.open('systeminfo.html')">系统消息
                             ({{info.unread_followeds_microcons_count+info.unread_followeds_micropubs_count+
                                 info.unread_microcons_likes_count+info.unread_micropubs_likes_count+
                                 info.unread_recived_comments_count}})</button>
@@ -411,10 +411,10 @@
                 },
                 item_click:function(x){
                     if(this.mode==0||this.mode==3){
-                        window.location.href="evidence_detail.html?id="+x
+                        window.open("evidence_detail.html?id="+x)
                     }
                     else if(this.mode==1||this.mode==4){
-                        window.location.href="hypothesis_detail.html?id="+x
+                        window.open("hypothesis_detail.html?id="+x)
                     }
                 },
                 load_notifications(){
