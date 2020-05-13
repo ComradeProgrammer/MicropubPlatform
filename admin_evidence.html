@@ -181,7 +181,7 @@
 					    }
 					    else if(error.response==404){
 					        alert("该微证据不存在或已被删除");
-					        window.history.back(-1);
+					        window.location.reload();
 					    }
 					}.bind(this))
 				}
