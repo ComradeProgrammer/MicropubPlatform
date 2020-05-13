@@ -127,14 +127,13 @@
                     headers:{
                         'Content-Type': 'application/json',
                         'Cache-Control': 'no-cache',
-                        'Authorization':'Bearer '+token,
                     },
                 }).then(
                     response=>{
                         this.status=0;
                         console.log(response);
                         alert("验证成功");
-                        setTimeout(function(){window.loation.href="login.html"},2000);
+                        setTimeout(function(){window.location.href="login.html"},2000);
                     }
                 ).catch(function (error) {
                     this.status=1;
