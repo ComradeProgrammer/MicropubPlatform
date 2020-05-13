@@ -140,10 +140,11 @@
 
                             <button v-if="userinfo.valid" v-bind:class="{btn:true,'btn-outline-primary':!darkmode,'btn-outline-success':darkmode}" onclick="window.location.href='hypothesis_create.html'">创建微猜想</button>
 
+                            <button v-if="userinfo.valid" v-bind:class="{btn:true,'btn-outline-primary':!darkmode,'btn-outline-success':darkmode}" onclick="window.location.href='usercenter.html'">个人中心</button>
+
                             <button v-if="userinfo.valid" v-bind:class="{btn:true,'btn-outline-primary':!darkmode,'btn-outline-success':darkmode}" onclick="window.location.href='message.html'">我的站内信
                             ({{info.unread_messages_count}})</button>
 
-                            <button v-if="userinfo.valid" v-bind:class="{btn:true,'btn-outline-primary':!darkmode,'btn-outline-success':darkmode}" onclick="window.location.href='usercenter.html'">个人中心</button>
 
                             <button v-if="userinfo.valid" v-bind:class="{btn:true,'btn-outline-primary':!darkmode,'btn-outline-success':darkmode}" onclick="window.location.href='systeminfo.html'">系统消息
                             ({{info.unread_followeds_microcons_count+info.unread_followeds_micropubs_count+
@@ -156,6 +157,7 @@
                             <button v-if="!userinfo.valid" v-bind:class="{btn:true,'btn-outline-primary':!darkmode,'btn-outline-success':darkmode}" onclick="window.location.href='login.html?type=1'">登录</button>
 
                         </div>
+                        <button v-if="userinfo.administrator" class="btn btn-warning" onclick="window.location.href='admin_index.html'" style="width: 90%;margin: 5px auto;">管理员后台</button>
                         <div style="height:5px"></div>
                     </div>
                 </div>
@@ -249,8 +251,14 @@
                     //记住页面位置
                     var tmp=document.documentElement.scrollTop
                     this.getmaindata();
+                    debugger
                     //DOM更新完成之后再跳回到原来的位置
-                    this.$nextTick(()=>{document.documentElement.scrollTop=tmp;})
+                    this.$nextTick(
+                        ()=>{
+                            debugger;
+                            document.documentElement.scrollTop=tmp;
+                            }
+                        )
                 },
                 //渲染数据
                 getmaindata:function(){
@@ -291,10 +299,9 @@
                         }).then(
                             response=>{
                                 console.log(response)
-                                debugger
                                 this.hasnext=response.data._links.next!=null;
+                                var tmpHeight=document.documentElement.scrollTop
                                 for(var i=0;i<response.data.items.length;i++){
-                                    debugger
                                     this.maindata.push({
                                         id:response.data.items[i].id,
                                         header:response.data.items[i].title,
@@ -303,6 +310,11 @@
                                         hot:false,
                                     })
                                 }
+                                this.$nextTick(
+                                ()=>{
+                                    document.documentElement.scrollTop=tmpHeight;
+                                    }
+                                )
                             }
                         ).catch(function (error) {
                             if(error.response.status==400&&!error.response.data.message){

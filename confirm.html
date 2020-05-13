@@ -44,7 +44,7 @@
                     </div>
                     <div class="main middle" v-bind:style="{'background-color':styleobject.front}">
                         <h2 style="color: red;">Ooooops验证失败</h2>
-                        <span style="color: red;">发生了一些问题请稍后重试</span>
+                        <span style="color: red;">{{errormsg}}</span>
                     </div>
                 </template>
             </div>
@@ -74,6 +74,7 @@
                     bgpic:"url('static/img/bgdark.png')"
                 },
                 status:2,
+                errormsg:"发生了一些问题请稍后重试",
             },
             computed:{
                 styleobject:function(){
@@ -121,12 +122,14 @@
                     this.status=1;
                     return;
                 }
+                debugger
                 axios({
                     method: 'get',
                     url:'http://114.116.53.43/api/confirm/'+token,
                     headers:{
                         'Content-Type': 'application/json',
                         'Cache-Control': 'no-cache',
+                        'Authorization':'Bearer '+token,
                     },
                 }).then(
                     response=>{
@@ -138,7 +141,14 @@
                 ).catch(function (error) {
                     this.status=1;
                     console.log(error.response)
-                    alert("验证失败");
+                    if(error.response.status==400&&error.response.data.message=="You have already confirmed your account."){
+                        this.errormsg="您已成功验证您的邮箱，无需重复注册，数秒后将会跳转至登陆页面"
+                        setTimeout(function(){window.location.href="login.html"},2000);
+                    }
+                    else{
+                        alert("验证失败");
+                    }
+                    
                 }.bind(this));
 
             }
