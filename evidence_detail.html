@@ -196,7 +196,6 @@
                     return(false);
                 },
                 getdata:function(id){
-                    // todo: api test
                     axios({
                         method: 'get',
                         url:'http://114.116.53.43/api/micropubs/'+id,
@@ -338,7 +337,6 @@
                     }.bind(this))
                 },
                 collect_click:function(){
-                    // todo api test
                     var id=this.getQueryVariable("id");
                     var api="";
                     if(this.collected){
