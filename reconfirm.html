@@ -17,20 +17,16 @@
                 <!--img src="static/img/guard.png" style="height:60px;width:60px; margin:5px;"-->
                 <div class="header-content" style="display:inline-block;">首页</div>
                 <button  v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"  style="float:right;height:100%;" v-on:click="switchtheme">切换主题</button>
-                <div class="dropdown" style="float:right">
-                    <div class="main dropdown-toggle" data-toggle="dropdown" style="width: 75px;height:60px;margin:5px;float: right;padding: 5px;">
-                        <img v-bind:src="mineavatar?mineavatar:'static/img/avater.jpg'" 
-                        style="width:50px;height:50px;">
-                    </div>
-                    <div class="dropdown-menu" v-bind:style="{'background-color':styleobject.front }">
-                        <a class="dropdown-item" href="index.html" v-bind:style="{color:styleobject.content}">首页</a>
-                        <a class="dropdown-item" href="usercenter.html" v-bind:style="{color:styleobject.content}">个人中心</a>
-                        <!--div class="dropdown-divider"></div-->
-                    </div>
-                </div>
+                
             </div>
             <!--主体-->
             <div class="container-fluid" style="margin-top:30px;">
+                <div class="main" style="width: 80%;margin: 0 auto;text-align: center;opacity: 1.0;" v-bind:style="{'background-color':styleobject.front,}">
+                    <img src="static/img/system.png" style="width: 150px;height: 150px;margin:0px auto">
+                    <h2>我们已向您的邮箱发送确认邮件，请注意检查邮箱(包括垃圾箱)</h2>
+                    <button type="button" v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}" style="margin:0 auto;margin-top:10px;width:80%" v-on:click="resend">什么验证邮件？我没收到</button><br>
+                    <div style="height:20px"></div>
+                </div>
                 
             </div>
         </div>
@@ -78,6 +74,26 @@
                     document.querySelector('body').style.backgroundImage=this.styleobject.bgpic;
                     window.localStorage["dark"]=this.darkmode;
                 },
+                resend:function(){
+                    axios({
+                        method: 'get',
+                        url:'',
+                        headers:{
+                            'Cache-Control': 'no-cache',
+                            'Authorization':'Bearer '+window.localStorage["token"],
+                        },
+                    }).then(
+                        response=>{
+                            alert("已重新发送")
+                            
+                        }
+                        
+                    ).catch(function (error) {
+                        //debugger
+                        console.log(error.response)
+                        
+                    }.bind(this));
+                }
                
             },
             mounted(){

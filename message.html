@@ -18,6 +18,17 @@
                 <!--img src="static/img/guard.png" style="height:60px;width:60px; margin:5px;"-->
                 <div class="header-content" style="display:inline-block;">站内信</div>
                 <button  v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"  style="float:right;height:100%;" v-on:click="switchtheme">切换主题</button>
+                <div class="dropdown" style="float:right">
+                    <div class="main dropdown-toggle" data-toggle="dropdown" style="width: 75px;height:60px;margin:5px;float: right;padding: 5px;">
+                        <img v-bind:src="mineavatar?mineavatar:'static/img/avater.jpg'" 
+                        style="width:50px;height:50px;">
+                    </div>
+                    <div class="dropdown-menu" v-bind:style="{'background-color':styleobject.front }">
+                        <a class="dropdown-item" href="index.html" v-bind:style="{color:styleobject.content}">首页</a>
+                        <a class="dropdown-item" href="usercenter.html" v-bind:style="{color:styleobject.content}">个人中心</a>
+                        <!--div class="dropdown-divider"></div-->
+                    </div>
+                </div>
             </div>
             <!--主体-->
             <div class="container-fluid" style="margin-top:30px;" id="body" > 
@@ -28,7 +39,7 @@
                             <img v-bind:src="msg.avatar?msg.avatar:'static/img/avater.jpg'" class="avatar main">
                             <div class="leftbarbox">
                                 <span style="font-size: 25px;">{{msg.user_name}}</span><br>
-                                <span style="font-size: 15px;">{{msg.newmsg>0?'('+msg.newmsg+'条新消息)':''}} {{msg.content}}</span>
+                                <span style="font-size: 15px;">{{msg.newmsg?'(新消息)':''}} {{msg.content}}</span>
                             </div>
                         </div>
                     </template>
@@ -94,6 +105,7 @@
                 detail_page:0,
                 detail_totalpage:0,
                 assigned_id:false,
+                mineavatar:window.localStorage["avatar"],
             },
             computed:{
                 styleobject:function(){
@@ -138,18 +150,21 @@
                                     var tmp={
                                         id:response.data.items[i].id,
                                         content:response.data.items[i].body,
-                                        newmsg:response.data.items[i].is_new?response.data.items[i].new_count:0,
                                         user_id:response.data.items[i].sender.id,
                                         user_name:response.data.items[i].sender.username,
-                                        avatar:response.data.items[i].sender._links.avatar,
+                                        
                                     }
+                                    debugger
                                     if(response.data.items[i].sender.id==window.localStorage["id"]){
                                         tmp["user_id"]=response.data.items[i].recipient.id
                                         tmp['user_name']=response.data.items[i].recipient.username
+                                        tmp.avatar=response.data.items[i].recipient._links.avatar;
                                     }
                                     else{
                                         tmp["user_id"]=response.data.items[i].sender.id
                                         tmp['user_name']=response.data.items[i].sender.username
+                                        tmp.avatar=response.data.items[i].sender._links.avatar;
+                                        tmp.newmsg=response.data.items[i].is_new;
                                     }
                                   
                                     this.message_list.push(tmp)

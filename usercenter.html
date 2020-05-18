@@ -18,6 +18,17 @@
                 <!--img src="static/img/guard.png" style="height:60px;width:60px; margin:5px;"-->
                 <div class="header-content" style="display:inline-block;">个人中心</div>
                 <button  v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"  style="float:right;height:100%;" v-on:click="switchtheme">切换主题</button>
+                <div class="dropdown" style="float:right">
+                    <div class="main dropdown-toggle" data-toggle="dropdown" style="width: 75px;height:60px;margin:5px;float: right;padding: 5px;">
+                        <img v-bind:src="mineavatar?mineavatar:'static/img/avater.jpg'" 
+                        style="width:50px;height:50px;">
+                    </div>
+                    <div class="dropdown-menu" v-bind:style="{'background-color':styleobject.front }">
+                        <a class="dropdown-item" href="index.html" v-bind:style="{color:styleobject.content}">首页</a>
+                        <a class="dropdown-item" href="usercenter.html" v-bind:style="{color:styleobject.content}">个人中心</a>
+                        <!--div class="dropdown-divider"></div-->
+                    </div>
+                </div>
             </div>
             <!--主体-->
             <div class="container-fluid" style="margin-top:30px;">
@@ -43,7 +54,7 @@
                     <template v-if="pagetype==0">
                         <template v-for="evidence in evidences">
                             <div class="item card" style="opacity: 0.8;cursor: pointer;" v-on:click="goto_evidence(evidence.id)">
-                                <div v-bind:class="styleobject.itemheaderclass">{{evidence.header}}
+                                <div v-bind:class="styleobject.itemheaderclass">{{evidence.header}}<br>
                                     <span class="badge badge-pill badge-info mybadge" v-for="b in evidence.badges">{{b}}</span>
                                 </div>
                                 <div v-bind:class="styleobject.itembodyclass">{{evidence.content}}</div>
@@ -56,9 +67,20 @@
 
                     <template v-else-if="pagetype==1">
                         <template v-for="h in hypothesis">
-                            <div class="item card" style="opacity: 0.8;cursor: pointer;" v-on:click="goto_hypothesis(h.id)">
+                            <!--div class="item card" style="opacity: 0.8;cursor: pointer;" v-on:click="goto_hypothesis(h.id)">
                                 <div v-bind:class="styleobject.itemheaderclass">{{h.header}}
                                     <span class="badge badge-pill badge-info mybadge" v-for="b in h.badges">{{b}}</span>
+                                </div>
+                                <div v-bind:class="styleobject.itembodyclass">{{h.content}}</div>
+                            </div-->
+                            <div class="item card" v-on:click="goto_hypothesis(h.id)" style="cursor: pointer;">
+                                <div v-bind:class="styleobject.itemheaderclass">{{h.header}}
+                                    <span v-if="h.evidence_state&& h.state==0" v-bind:class="{badge:true,'badge-warning':true}">评审中</span>
+                                    <span v-if="h.evidence_state&&h.state==2" v-bind:class="{badge:true,'badge-danger':true}">未通过</span>
+                                    <span v-if="h.evidence_state&&h.state==1" v-bind:class="{badge:true,'badge-success':true}">已通过</span>
+                                    <br>
+                                    <span v-for="badge in h.badges" class="badge badge-pill badge-info mybadge">{{badge}}</span>
+                                    <span v-if="h.hot" class="badge badge-danger mybadge">HOT</span>
                                 </div>
                                 <div v-bind:class="styleobject.itembodyclass">{{h.content}}</div>
                             </div>
@@ -149,7 +171,11 @@
                         <template v-for="c in collected_item">
                         <div class="item card" style="opacity: 0.8;cursor: pointer;" v-on:click="submode==0?goto_evidence(c.id):goto_hypothesis(c.id)">
                             <div v-bind:class="styleobject.itemheaderclass">{{c.header}}
-                                <span class="badge badge-pill badge-info mybadge" v-for="b in c.badge">{{b}}</span>
+                                <span v-if="c.evidence_state&& c.state==0" v-bind:class="{badge:true,'badge-warning':true}">评审中</span>
+                                <span v-if="c.evidence_state&&c.state==2" v-bind:class="{badge:true,'badge-danger':true}">未通过</span>
+                                <span v-if="c.evidence_state&&c.state==1" v-bind:class="{badge:true,'badge-success':true}">已通过</span>
+                                    <br>
+                                <span class="badge badge-pill badge-info mybadge" v-for="b in c.badges">{{b}}</span>
                             </div>
                             <div v-bind:class="styleobject.itembodyclass">{{c.content}}</div>
                         </div>
@@ -250,6 +276,7 @@
                 //页数
                 currentpage:0,
                 hasnext:true,
+                mineavatar:window.localStorage["avatar"],
             },
             computed:{
                 styleobject:function(){
@@ -297,7 +324,7 @@
                     else if(t==3){
                         this.currentpage=0,
                         this.hasnext=true,
-                        this.followed.splice(0,this.following.length);
+                        this.followed.splice(0,this.followed.length);
                         this.getfollowed();
                     }
                     else if(t==5){
@@ -627,12 +654,17 @@
                             console.log(response)
                             this.hasnext=response.data._links.next!=null;
                             for(var i=0;i<response.data.items.length;i++){
-                                this.collected_item.push({
+                                var tmp={
                                     id:response.data.items[i].id,
                                     header:response.data.items[i].title,
                                     content:response.data.items[i].summary,
                                     badges:response.data.items[i].tags,
-                                })
+                                }
+                                if(this.submode==1){
+                                    tmp.evidence_state=true;
+                                    tmp.state=response.data.items[i].status;
+                                }
+                                this.collected_item.push(tmp)
                             }
                         }
                     ).catch(function (error) {
@@ -670,6 +702,9 @@
                                     header:response.data.items[i].title,
                                     content:response.data.items[i].summary,
                                     badges:response.data.items[i].tags,
+                                    evidence_state:true,
+                                    state:response.data.items[i].status,
+                                    
                                 })
                             }
                         }

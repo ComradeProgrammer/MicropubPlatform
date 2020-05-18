@@ -16,8 +16,22 @@
             <!--粘性标题栏-->
             <div class="container-fluid header" v-bind:style="{'background-color':styleobject.front}">
                 <!--img src="static/img/guard.png" style="height:60px;width:60px; margin:5px;"-->
+                <img v-bind:src="darkmode?'static/img/dark_back.png':'static/img/light_back.png'"
+                    style="width: 50px;height: 50px;margin-top:5px;vertical-align: top;" class="main"
+                    onclick="window.history.back(-1)">
                 <div class="header-content" style="display:inline-block;">用户信息</div>
                 <button  v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"  style="float:right;height:100%;" v-on:click="switchtheme">切换主题</button>
+                <div class="dropdown" style="float:right">
+                    <div class="main dropdown-toggle" data-toggle="dropdown" style="width: 75px;height:60px;margin:5px;float: right;padding: 5px;">
+                        <img v-bind:src="mineavatar?mineavatar:'static/img/avater.jpg'" 
+                        style="width:50px;height:50px;">
+                    </div>
+                    <div class="dropdown-menu" v-bind:style="{'background-color':styleobject.front }">
+                        <a class="dropdown-item" href="index.html" v-bind:style="{color:styleobject.content}">首页</a>
+                        <a class="dropdown-item" href="usercenter.html" v-bind:style="{color:styleobject.content}">个人中心</a>
+                        <!--div class="dropdown-divider"></div-->
+                    </div>
+                </div>
             </div>
 
             <!--主体-->
@@ -91,9 +105,20 @@
                     </template>
                     <template v-else-if="mode==1">
                         <template v-for="h in hypothesis">
-                            <div class="item card" style="cursor: pointer;" v-on:click="goto_hypothesis(h.id)">
+                            <!--div class="item card" style="cursor: pointer;" v-on:click="goto_hypothesis(h.id)">
                                 <div v-bind:class="styleobject.itemheaderclass">{{h.header}}
                                     <span class="badge badge-pill badge-info mybadge" v-for="b in h.badges">{{b}}</span>
+                                </div>
+                                <div v-bind:class="styleobject.itembodyclass">{{h.content}}</div>
+                            </div-->
+                            <div class="item card" v-on:click="goto_hypothesis(h.id)" style="cursor: pointer;">
+                                <div v-bind:class="styleobject.itemheaderclass">{{h.header}}
+                                    <span v-if="h.evidence_state&& h.state==0" v-bind:class="{badge:true,'badge-warning':true}">评审中</span>
+                                    <span v-if="h.evidence_state&&h.state==2" v-bind:class="{badge:true,'badge-danger':true}">未通过</span>
+                                    <span v-if="h.evidence_state&&h.state==1" v-bind:class="{badge:true,'badge-success':true}">已通过</span>
+                                    <br>
+                                    <span v-for="badge in h.badges" class="badge badge-pill badge-info mybadge">{{badge}}</span>
+                                    <span v-if="h.hot" class="badge badge-danger mybadge">HOT</span>
                                 </div>
                                 <div v-bind:class="styleobject.itembodyclass">{{h.content}}</div>
                             </div>
@@ -209,6 +234,7 @@
                 hasnext:true,
                 //窗口宽度
                 windowwidth:0,
+                mineavatar:window.localStorage["avatar"],
             },
             computed:{
                 styleobject:function(){
@@ -549,6 +575,8 @@
                                     header:response.data.items[i].title,
                                     content:response.data.items[i].summary,
                                     badges:response.data.items[i].tags,
+                                    evidence_state:true,
+                                    state:response.data.items[i].status,
                                 })
                             }
                         }

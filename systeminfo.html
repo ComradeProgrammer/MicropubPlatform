@@ -18,6 +18,17 @@
                 <!--img src="static/img/guard.png" style="height:60px;width:60px; margin:5px;"-->
                 <div class="header-content" style="display:inline-block;">系统消息</div>
                 <button  v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"  style="float:right;height:100%;" v-on:click="switchtheme">切换主题</button>
+                <div class="dropdown" style="float:right">
+                    <div class="main dropdown-toggle" data-toggle="dropdown" style="width: 75px;height:60px;margin:5px;float: right;padding: 5px;">
+                        <img v-bind:src="mineavatar?mineavatar:'static/img/avater.jpg'" 
+                        style="width:50px;height:50px;">
+                    </div>
+                    <div class="dropdown-menu" v-bind:style="{'background-color':styleobject.front }">
+                        <a class="dropdown-item" href="index.html" v-bind:style="{color:styleobject.content}">首页</a>
+                        <a class="dropdown-item" href="usercenter.html" v-bind:style="{color:styleobject.content}">个人中心</a>
+                        <!--div class="dropdown-divider"></div-->
+                    </div>
+                </div>
             </div>
             <!--主体-->
             <div class="container-fluid" style="margin-top:30px;">
@@ -65,7 +76,11 @@
                         <template v-for="item in maindata">
                             <div class="item card" v-on:click="item_click(item.id)" style="cursor: pointer;">
                                 <div v-bind:class="styleobject.itemheaderclass">{{item.header}}
-                                    <span v-for="badge in item.badges" class="badge badge-pill badge-info mybadge">{{badge}}</span>
+                                    <span v-if="item.evidence_state&& item.state==0" v-bind:class="{badge:true,'badge-warning':true}">评审中</span>
+                                    <span v-if="item.evidence_state&&item.state==2" v-bind:class="{badge:true,'badge-danger':true}">未通过</span>
+                                    <span v-if="item.evidence_state&&item.state==1" v-bind:class="{badge:true,'badge-success':true}">已通过</span><br>
+                                    <span v-for="badge in item.badges" class="badge badge-pill badge-info mybadge"
+                                    style="font-size: 15px;">{{badge}}</span>
                                     <span v-if="item.hot" class="badge badge-danger mybadge">HOT</span>
                                 </div>
                                 <div v-bind:class="styleobject.itembodyclass">{{item.content}}</div>
@@ -121,7 +136,8 @@
                     unread_followeds_microcons_count:0,
                     unread_followeds_micropubs_count:0,
                     unread_recived_comments_count:0,
-                }
+                },
+                mineavatar:window.localStorage["avatar"],
             },
             computed:{
                 styleobject:function(){
@@ -205,9 +221,6 @@
                         this.comments();
                     }
                 },
-                item_click(x){
-
-                },
                 following_pubs:function(){
                     if(!this.hasnext){
                         return;
@@ -234,12 +247,18 @@
                             //console.log(response)
                             this.hasnext=response.data._links.next!=null;
                             for(var i=0;i<response.data.items.length;i++){
-                                this.maindata.push({
+                                var tmp={
                                     id:response.data.items[i].id,
                                     header:response.data.items[i].title,
                                     content:response.data.items[i].summary,
                                     badges:response.data.items[i].tags,
-                                })
+                                }
+                                if(this.submode==1){
+                                    tmp.evidence_state=true;
+                                    tmp.state=response.data.items[i].status;
+                                }
+                                this.maindata.push(tmp)
+                                
                             }
                         }
                     ).catch(function (error) {
@@ -383,10 +402,19 @@
                         }
                         
                     ).catch(function (error) {
-                        alert("发生错误");
+                        //alert("发生错误");
                         console.log(error.response)
                     }.bind(this));
                 },
+                item_click:function(x){
+                    if(this.mode==0){
+                        if(this.submode==0)
+                            window.open("evidence_detail.html?id="+x)
+                        else if(this.submode==1)
+                            window.open("hypothesis_detail.html?id="+x)
+                    }
+                    
+                }
             },
             mounted(){
                 if(!window.localStorage["dark"]||window.localStorage["dark"]=="false"){

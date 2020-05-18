@@ -16,19 +16,39 @@
             <!--粘性标题栏-->
             <div class="container-fluid header" v-bind:style="{'background-color':styleobject.front}">
                 <!--img src="static/img/guard.png" style="height:60px;width:60px; margin:5px;"-->
+                <img v-bind:src="darkmode?'static/img/dark_back.png':'static/img/light_back.png'"
+                    style="width: 50px;height: 50px;margin-top:5px;vertical-align: top;" class="main"
+                    onclick="window.history.back(-1)">
                 <div class="header-content" style="display:inline-block;">微证据{{type?'修改':'创建'}}</div>
+                
                 <button  v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"  style="float:right;height:100%;" v-on:click="switchtheme">切换主题</button>
+                
+                <div class="dropdown" style="float:right">
+                    <div class="main dropdown-toggle" data-toggle="dropdown" style="width: 75px;height:60px;margin:5px;float: right;padding: 5px;">
+                        <img v-bind:src="mineavatar?mineavatar:'static/img/avater.jpg'" 
+                        style="width:50px;height:50px;">
+                    </div>
+                    <div class="dropdown-menu" v-bind:style="{'background-color':styleobject.front }">
+                        <a class="dropdown-item" href="index.html" v-bind:style="{color:styleobject.content}">首页</a>
+                        <a class="dropdown-item" href="usercenter.html" v-bind:style="{color:styleobject.content}">个人中心</a>
+                        <!--div class="dropdown-divider"></div-->
+                    </div>
+                </div>
             </div>
             <!--主体-->
             <div class="container-fluid" style="margin-top:30px;">
                 <div class="main middle" v-bind:style="{'background-color':styleobject.front}">
                     <div style="width:80%;font-size: 20px;margin:0 auto">
                         <label>微证据标题</label>
+                        <label><span style="font-size: 12px; color:red;">* {{header==''?'微证据标题不能为空':''}}</span></label>
                         <input type="input" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content}" v-model="header">
+
                         <label>微证据内容</label>
+                        <label><span style="font-size: 12px; color:red;">* {{content==''?'微证据内容不能为空':''}}</span></label>
                         <textarea type="input" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content,height:'150px'}" v-model="content"></textarea>
 
                         <label>微证据引用</label>
+                        <label><span style="font-size: 12px; color:red;">* {{reference==''?'微证据引用不能为空':''}}</span></label>
                         <textarea type="input" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content,height:'100px'}" placeholder="请在此输入框输入所引用内容来源的链接，如有多个链接中间用回车分隔" v-model="reference"></textarea>
                         <label>为你的微证据添加标签(至少1个)</label><br>
                             <button v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}" style="float:right;"
@@ -75,6 +95,7 @@
                 reference:"",
                 tags_count:1,
                 type:0,
+                mineavatar:window.localStorage["avatar"],
             },
             computed:{
                 styleobject:function(){
@@ -105,12 +126,18 @@
                 },
                 submit:function(){
                     if(this.header==""||this.content==""||this.reference==""){
-                        alert("标题,内容和引用不能为空")
+                        //alert("标题,内容和引用不能为空")
                         return
                     }
                     var tags=[];
                     for(var i=0;i<this.tags_count;i++){
-                        tags.push(document.getElementsByClassName("tags")[i].value);
+                        if(document.getElementsByClassName("tags")[i].value!=''){
+                            tags.push(document.getElementsByClassName("tags")[i].value);
+                        }
+                    }
+                    if(tags.length==0){
+                        alert("标签不能全部为空");
+                        return
                     }
                     var bundle={
                         title:this.header,

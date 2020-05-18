@@ -16,6 +16,9 @@
             <!--标题栏-->
             <div class="container-fluid header" v-bind:style="{'background-color':styleobject.front}">
                 <!--img src="static/img/guard.png" style="height:60px;width:60px; margin:5px;"-->
+                <img v-bind:src="darkmode?'static/img/dark_back.png':'static/img/light_back.png'"
+                    style="width: 50px;height: 50px;margin-top:5px;vertical-align: top;" class="main"
+                    onclick="window.history.back(-1)">
                 <div class="header-content" style="display:inline-block;">注册</div>
                 <button  v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"  style="float:right;height:100%;" v-on:click="switchtheme">切换主题</button>
             </div>
@@ -31,28 +34,17 @@
                     <div style="width:80%;margin:0 auto">
                         <label><h3>账户信息</h3></label><br/>
                         <label>新的账户名</label>
+                        <label><span style="font-size: 12px; color:red;">* {{account==''?'账户名不能为空':''}}</span></label>
                         <input type="input" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content}" v-model="account">
                         <label>密码</label>
+                        <label><span style="font-size: 12px; color:red;">* {{password.length<=7?'密码不得少于八个字符':''}}</span></label>
                         <input type="password" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content}" v-model="password">
                         <label>确认密码</label>
+                        <label><span style="font-size: 12px; color:red;">* {{password!=repeatpassword?'两次密码不一致':''}}</span></label>
                         <input type="password" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content}" v-model="repeatpassword">
-                        <!--
-                        <label><h3>个人信息</h3></label><br/>
-                        <label>您的姓名</label>
-                        <input type="input" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content}">
-                        -->
-                        <!--
-                        <label>您的工作单位</label>
-                        <input type="input" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content}">
-                        -->
                         <label>您的邮箱</label>
+                        <label><span style="font-size: 12px; color:red;">* {{email==''?'邮箱不能为空':''}}</span></label>
                         <input type="input" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content}" v-model="email">
-                        <!--
-                        <label>您的个人偏好(按住ctrl键可以多选)</label>
-                        <select multiple class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content}">
-                            <option v-for="tag in tags">{{tag}}</option>
-                        </select>
-                        -->
                         <div style="width:100%;text-align:center">
                             <button  v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"
                             style="margin:5px;width:60%;" v-on:click="submit">注册</button>
@@ -113,10 +105,14 @@
                 },
                 submit:function(){
                     if(this.password==""||this.account==""||this.email==""){
-                        alert("请输入每个必选项")
+                        return
                     }
                     if(this.password!=this.repeatpassword){
-                        alert("两次密码不一致");
+                        return
+                    }
+                    if(password.length<8){
+                        alert("密码长度不能少于8位")
+                        return
                     }
                     var bundle={}
                     bundle["username"]=this.account
@@ -135,7 +131,7 @@
                     }).then(
                         response=>{
                             console.log(response);
-                            alert("注册成功");
+                            alert("注册成功,一封注册邮件已经发往你的邮箱，请注意查收");
                             window.location.href="login.html"
                         }
                         
@@ -150,7 +146,7 @@
                                 }
                                 
                             }
-                            else if(error.response.data.message.email){
+                            else if(error.response.data.message.username){
                                 alert("用户名已被占用")
                             }
                         }

@@ -16,18 +16,35 @@
             <!--粘性标题栏-->
             <div class="container-fluid header" v-bind:style="{'background-color':styleobject.front}">
                 <!--img src="static/img/guard.png" style="height:60px;width:60px; margin:5px;"-->
+                <img v-bind:src="darkmode?'static/img/dark_back.png':'static/img/light_back.png'"
+                    style="width: 50px;height: 50px;margin-top:5px;vertical-align: top;" class="main"
+                    onclick="window.history.back(-1)">
                 <div class="header-content" style="display:inline-block;">微猜想创建</div>
                 <button  v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"  style="float:right;height:100%;" v-on:click="switchtheme">切换主题</button>
+                <div class="dropdown" style="float:right">
+                    <div class="main dropdown-toggle" data-toggle="dropdown" style="width: 75px;height:60px;margin:5px;float: right;padding: 5px;">
+                        <img v-bind:src="mineavatar?mineavatar:'static/img/avater.jpg'" 
+                        style="width:50px;height:50px;">
+                    </div>
+                    <div class="dropdown-menu" v-bind:style="{'background-color':styleobject.front }">
+                        <a class="dropdown-item" href="index.html" v-bind:style="{color:styleobject.content}">首页</a>
+                        <a class="dropdown-item" href="usercenter.html" v-bind:style="{color:styleobject.content}">个人中心</a>
+                        <!--div class="dropdown-divider"></div-->
+                    </div>
+                </div>
             </div>
             <!--主体-->
             <div class="container-fluid" style="margin-top:30px;">
                 <div class="main middle" v-bind:style="{'background-color':styleobject.front}">
                     <div style="width:80%;font-size: 20px;margin:0 auto">
                         <label>微猜想标题</label>
+                        <label><span style="font-size: 12px; color:red;">* {{title==''?'微猜想标题不能为空':''}}</span></label>
                         <input type="input" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content}" v-model="title">
                         <label>微猜想内容</label>
+                        <label><span style="font-size: 12px; color:red;">* {{summary==''?'微内容标题不能为空':''}}</span></label>
                         <textarea type="input" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content,height:'150px'}" v-model="summary"></textarea>
                         <hr v-bind:style="{border:'1px solid '+styleobject.content,margin:'5px'}">
+
                         <label>为你的微猜想添加标签(至少1个)</label><br>
                             <button v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}" style="float:right;"
                             v-on:click="tags_count++">
@@ -41,14 +58,19 @@
                         <label>微猜想引用(2个)</label>
                         <br>
 
-                        <label style="width: 70%;overflow: hidden;">微证据1:{{evidence1_header}}</label>
+                        <label style="width: 70%;overflow: hidden;">微证据1:{{evidence1_header}}
+                        <span style="font-size: 12px; color:red;">* {{evidence1==''?'引用的微证据不能为空':''}}</span>
+                        </label>
                         <button type="button" v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"
                         v-on:click="choose_evidence(1)" style="float: right;">从收藏夹中选择</button><br>
+                        
 
-                        <label style="width: 70%;overflow: hidden;">微证据2:{{evidence2_header}}</label>
+                        <label style="width: 70%;overflow: hidden;">微证据2:{{evidence2_header}}
+                        <span style="font-size: 12px; color:red;">* {{evidence2==''?'引用的微证据不能为空':''}}</span></label>
                         <button type="button" v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"
                         v-on:click="choose_evidence(2)" style="float: right;">从收藏夹中选择</button><br>
                         
+
                         <button type="button" v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}" style="margin:0 auto;margin-top:10px;width:100%" v-on:click="submit">提交</button><br>
                         <div style="height:50px"></div>
                     </div>
@@ -58,7 +80,7 @@
             <div class="popups"  v-bind:style="{'background-color':styleobject.bgtransparent,'display':pop}">
                 <div class="popups-body" v-bind:style="{'background-color':styleobject.front}">
                     <div style="width: 80%;margin: 0 auto;">
-                        <label>请选择收藏夹中的微猜想</label>
+                        <label>请选择收藏夹中的微证据</label>
                         <select  size="6" class="form-control popselect" v-bind:style="{'background-color':styleobject.front,color:styleobject.content}" v-model="evidence_from_collection">
                             <option v-for="collection in collections" v-bind:value="{id:collection.id,title:collection.title}">{{collection.title}}</option>
                             
@@ -115,7 +137,8 @@
                 evidence1_header:"",
                 evidence2_header:"",
                 tags_count:1,
-                type:0
+                type:0,
+                mineavatar:window.localStorage["avatar"],
 
             },
             computed:{
@@ -156,13 +179,26 @@
                 },
                 choose_finish:function(){
                     this.pop="none";
+
                     if(this.current_editing==1){
-                        this.evidence1=this.evidence_from_collection.id;
-                        this.evidence1_header=this.evidence_from_collection.title;
+                        if(this.evidence_from_collection.id){
+                            this.evidence1=this.evidence_from_collection.id;
+                            this.evidence1_header=this.evidence_from_collection.title;
+                        }
+                        else{
+                            this.this.evidence1=""
+                            this.evidence1_header=""
+                        }
                     }
                     else if(this.current_editing==2){
-                        this.evidence2=this.evidence_from_collection.id;
-                        this.evidence2_header=this.evidence_from_collection.title;
+                        if(this.evidence_from_collection.id){
+                            this.evidence2=this.evidence_from_collection.id;
+                            this.evidence2_header=this.evidence_from_collection.title;
+                        }
+                        else{
+                            this.this.evidence1=""
+                            this.evidence1_header=""
+                        }
                     }
                 },
                 get_collections(){
@@ -206,9 +242,19 @@
                     if(this.header==""||this.content==""||this.evidence1==""||this.evidence2==""){
                         return
                     }
+                    if(this.evidence1==this.evidence2){
+                        alert("引用的两个微证据不能相同");
+                        return;
+                    }
                     var tags=[];
                     for(var i=0;i<this.tags_count;i++){
-                        tags.push(document.getElementsByClassName("tags")[i].value);
+                        if(document.getElementsByClassName("tags")[i].value!=''){
+                            tags.push(document.getElementsByClassName("tags")[i].value);
+                        }
+                    }
+                    if(tags.length==0){
+                        alert("标签不能全部为空");
+                        return
                     }
                     var bundle={
                         title:this.title,
