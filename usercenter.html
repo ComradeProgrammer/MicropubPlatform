@@ -66,13 +66,21 @@
                     </template>
 
                     <template v-else-if="pagetype==1">
+                        <nav v-bind:class="{navbar:true,'navbar-expand-sm':true ,'navbar-dark':true,main:true,'bg-primary':!darkmode,'bg-success':darkmode}" style="width:100%;margin:0 auto;margin-bottom:10px;">
+                            <ul class="navbar-nav">
+                              <li v-bind:class="{'nav-item':true,'active':submode==0}" style="cursor: pointer;" v-on:click="changesubmode(0)">
+                                <span class="nav-link" >已通过</span>
+                              </li>
+                              <li v-bind:class="{'nav-item':true,'active':submode==1}" style="cursor: pointer;" v-on:click="changesubmode(1)">
+                                <span class="nav-link" >已否决</span>
+                              </li>
+                              <li v-bind:class="{'nav-item':true,'active':submode==1}" style="cursor: pointer;" v-on:click="changesubmode(2)">
+                                <span class="nav-link" >审核中</span>
+                              </li>
+                            </ul>
+                        </nav>
                         <template v-for="h in hypothesis">
-                            <!--div class="item card" style="opacity: 0.8;cursor: pointer;" v-on:click="goto_hypothesis(h.id)">
-                                <div v-bind:class="styleobject.itemheaderclass">{{h.header}}
-                                    <span class="badge badge-pill badge-info mybadge" v-for="b in h.badges">{{b}}</span>
-                                </div>
-                                <div v-bind:class="styleobject.itembodyclass">{{h.content}}</div>
-                            </div-->
+                            
                             <div class="item card" v-on:click="goto_hypothesis(h.id)" style="cursor: pointer;">
                                 <div v-bind:class="styleobject.itemheaderclass">{{h.header}}
                                     <span v-if="h.evidence_state&& h.state==0" v-bind:class="{badge:true,'badge-warning':true}">评审中</span>
@@ -303,6 +311,7 @@
                     window.localStorage["dark"]=this.darkmode;
                 },
                 switchtype:function(t){
+                    this.pagetype=t;
                     if(t==0){
                         this.currentpage=0;
                         this.hasnext=true;
@@ -313,7 +322,8 @@
                         this.currentpage=0;
                         this.hasnext=true;
                         this.hypothesis.splice(0,this.hypothesis.length);
-                        this.gethypothesis();
+                        //this.gethypothesis();
+                        this.changesubmode(0)
                     }
                     else if(t==2){
                         this.currentpage=0;
@@ -333,7 +343,7 @@
                         this.collected_item.splice(0,this.collected_item.length);
                         this.changesubmode(0)
                     }
-                    this.pagetype=t;
+                   
                     this.getuserinfo();
                 },
                 //获取我关注的人
@@ -624,10 +634,19 @@
                     window.open("hypothesis_detail.html?id="+id);
                 },
                 changesubmode:function(x){
-                    this.submode=x;
-                    this.currentpage=0;
-                    this.collected_item.splice(0,this.collected_item.length);
-                    this.load_collection();
+                    debugger
+                    if(this.pagetype==5){
+                        this.submode=x;
+                        this.currentpage=0;
+                        this.collected_item.splice(0,this.collected_item.length);
+                        this.load_collection();
+                    }
+                    else if(this.pagetype==1){
+                        this.submode=x;
+                        this.currentpage=0;
+                        this.hypothesis.splice(0,this.hypothesis.length);
+                        this.gethypothesis();
+                    }
                 },
                 load_collection:function(){
                     // test api
@@ -682,10 +701,13 @@
                     if(!this.hasnext){
                         return;
                     }
+                    var x=this.submode==0?1:
+                            this.submode==1?-1:0;
+
                     this.currentpage++;
                     axios({
                         method: 'get',
-                        url:'http://114.116.53.43/api/users/'+window.localStorage["id"]+'/microcons?page='+this.currentpage+'&per_page=10',
+                        url:'http://114.116.53.43/api/users/'+window.localStorage["id"]+'/microcons?status='+x+'&page='+this.currentpage+'&per_page=10',
                         headers:{
                             'Cache-Control': 'no-cache',
                             'Authorization':'Bearer '+window.localStorage["token"],

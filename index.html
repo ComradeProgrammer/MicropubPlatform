@@ -47,7 +47,7 @@
                         v-bind:style="{'border-left':mode==2?'5px solid gray':'none',
                                     'border-right':mode==2?'5px solid gray':'none',
                                     'border-radius':mode==2?'0':'.25rem'}"
-                        v-on:click="changemode(2)">待评审热榜</button>
+                        v-on:click="changemode(2)">待评审猜想</button>
                         <button v-bind:class="{btn:true,leftbutton:true,'btn-primary':!darkmode,'btn-success':darkmode}"
                         v-bind:style="{'border-left':mode==3?'5px solid gray':'none',
                                     'border-right':mode==3?'5px solid gray':'none',
@@ -58,11 +58,11 @@
                                     'border-right':mode==4?'5px solid gray':'none',
                                     'border-radius':mode==4?'0':'.25rem'}"
                         v-on:click="changemode(4)">微猜想推荐</button>
-                        <button v-bind:class="{btn:true,leftbutton:true,'btn-primary':!darkmode,'btn-success':darkmode}"
+                        <!--button v-bind:class="{btn:true,leftbutton:true,'btn-primary':!darkmode,'btn-success':darkmode}"
                         v-bind:style="{'border-left':mode==5?'5px solid gray':'none',
                                     'border-right':mode==5?'5px solid gray':'none',
                                     'border-radius':mode==5?'0':'.25rem'}"
-                        v-on:click="changemode(5)">待评审推荐</button>
+                        v-on:click="changemode(5)">待评审推荐</button-->
                         <button v-bind:class="{btn:true,leftbutton:true,'btn-primary':!darkmode,'btn-success':darkmode}"
                         v-bind:style="{'border-left':mode==6?'5px solid gray':'none',
                                     'border-right':mode==6?'5px solid gray':'none',
@@ -293,10 +293,9 @@
                                 api='http://114.116.53.43/api/microcons/hot?page='+this.currentpage+'&per_page=10'
                                 break;
                             case 2:
-                                api='http://114.116.53.43/api/microcons/hot?page='+this.currentpage+'&per_page=10'
+                                api='http://114.116.53.43/api/microcons?status=0&page='+this.currentpage+'&per_page=10'
                                 break;
                             case 3:
-                            //todo 待评审热榜
                                 if(!window.localStorage["id"]){
                                     window.location.href="login.html?type=1" 
                                 }
@@ -308,13 +307,12 @@
                                 }
                                 api='http://114.116.53.43/api/users/'+window.localStorage["id"]+'/recommend-microcons?page='+this.currentpage+'&per_page=10'
                                 break;
-                            case 5:
-                            //todo 待评审推荐
+                            /*case 5:
                                 if(!window.localStorage["id"]){
                                     window.location.href="login.html?type=1" 
                                 }
                                 api='http://114.116.53.43/api/users/'+window.localStorage["id"]+'/recommend-microcons?page='+this.currentpage+'&per_page=10'
-                                break;
+                                break;*/
                         }
                         if(api==""){
                             return
