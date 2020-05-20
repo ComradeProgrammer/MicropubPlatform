@@ -133,6 +133,7 @@
                         <span v-if="userinfo.confirmed" class="badge badge-primary">已注册</span>
                         <span v-if="userinfo.valid&&userinfo.administrator"class="badge badge-warning">管理员</span>
                         <span v-if="userinfo.valid&&userinfo.forbidden" class="badge badge-danger">封禁中</span>
+                        <span v-if="userinfo.valid&&userinfo.role_name" class="badge badge-success">{{userinfo.role_name}}</span>
                         <table style="width:100%" v-if="userinfo.valid">
                             <thead>
                                 <th>微知识</th>
@@ -308,6 +309,9 @@
                                 followed:response.data.followers_count,
                                 following:response.data.followeds_count,
                                 avatar:response.data._links.avatar,
+                            }
+                            if(response.data.role_id!=1&&response.data.role_id!=4){
+                                this.userinfo.role_name=response.data.role_name;
                             }
                         } 
                     ).catch(function (error) {

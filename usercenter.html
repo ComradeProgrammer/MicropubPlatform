@@ -16,6 +16,9 @@
             <!--粘性标题栏-->
             <div class="container-fluid header" v-bind:style="{'background-color':styleobject.front}">
                 <!--img src="static/img/guard.png" style="height:60px;width:60px; margin:5px;"-->
+                <img v-bind:src="darkmode?'static/img/dark_home.png':'static/img/light_home.png'"
+                    style="width: 50px;height: 50px;margin-top:5px;vertical-align: top;" class="main"
+                    onclick="window.location.href='index.html'">
                 <div class="header-content" style="display:inline-block;">个人中心</div>
                 <button  v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"  style="float:right;height:100%;" v-on:click="switchtheme">切换主题</button>
                 <div class="dropdown" style="float:right">
@@ -74,7 +77,7 @@
                               <li v-bind:class="{'nav-item':true,'active':submode==1}" style="cursor: pointer;" v-on:click="changesubmode(1)">
                                 <span class="nav-link" >已否决</span>
                               </li>
-                              <li v-bind:class="{'nav-item':true,'active':submode==1}" style="cursor: pointer;" v-on:click="changesubmode(2)">
+                              <li v-bind:class="{'nav-item':true,'active':submode==2}" style="cursor: pointer;" v-on:click="changesubmode(2)">
                                 <span class="nav-link" >审核中</span>
                               </li>
                             </ul>
@@ -84,7 +87,7 @@
                             <div class="item card" v-on:click="goto_hypothesis(h.id)" style="cursor: pointer;">
                                 <div v-bind:class="styleobject.itemheaderclass">{{h.header}}
                                     <span v-if="h.evidence_state&& h.state==0" v-bind:class="{badge:true,'badge-warning':true}">评审中</span>
-                                    <span v-if="h.evidence_state&&h.state==2" v-bind:class="{badge:true,'badge-danger':true}">未通过</span>
+                                    <span v-if="h.evidence_state&&h.state==-1" v-bind:class="{badge:true,'badge-danger':true}">未通过</span>
                                     <span v-if="h.evidence_state&&h.state==1" v-bind:class="{badge:true,'badge-success':true}">已通过</span>
                                     <br>
                                     <span v-for="badge in h.badges" class="badge badge-pill badge-info mybadge">{{badge}}</span>
@@ -180,7 +183,7 @@
                         <div class="item card" style="opacity: 0.8;cursor: pointer;" v-on:click="submode==0?goto_evidence(c.id):goto_hypothesis(c.id)">
                             <div v-bind:class="styleobject.itemheaderclass">{{c.header}}
                                 <span v-if="c.evidence_state&& c.state==0" v-bind:class="{badge:true,'badge-warning':true}">评审中</span>
-                                <span v-if="c.evidence_state&&c.state==2" v-bind:class="{badge:true,'badge-danger':true}">未通过</span>
+                                <span v-if="c.evidence_state&&c.state==-1" v-bind:class="{badge:true,'badge-danger':true}">未通过</span>
                                 <span v-if="c.evidence_state&&c.state==1" v-bind:class="{badge:true,'badge-success':true}">已通过</span>
                                     <br>
                                 <span class="badge badge-pill badge-info mybadge" v-for="b in c.badges">{{b}}</span>
@@ -201,6 +204,7 @@
                         <span v-if="userinfo.valid" class="badge badge-primary">已认证</span>
                         <span v-if="userinfo.valid&&userinfo.administrator"class="badge badge-warning">管理员</span>
                         <span v-if="userinfo.valid&&userinfo.forbidden" class="badge badge-danger">封禁中</span>
+                        <span v-if="userinfo.valid&&userinfo.role_name" class="badge badge-success">{{userinfo.role_name}}</span>
                         <table style="width:100%" >
                             <thead>
                                 <th>关注Ta</th>
@@ -453,6 +457,9 @@
                                 avatar:response.data._links.avatar,
                                 followedpubs:response.data.followeds_micropubs_count,
                             }
+                            if(response.data.role_id!=1&&response.data.role_id!=4){
+                                this.userinfo.role_name=response.data.role_name;
+                            }
                         }
                         
                     ).catch(function (error) {
@@ -634,17 +641,20 @@
                     window.open("hypothesis_detail.html?id="+id);
                 },
                 changesubmode:function(x){
-                    debugger
+                    //debugger
                     if(this.pagetype==5){
                         this.submode=x;
                         this.currentpage=0;
                         this.collected_item.splice(0,this.collected_item.length);
+                        this.hasnext=true
                         this.load_collection();
                     }
                     else if(this.pagetype==1){
+                        //debugger
                         this.submode=x;
                         this.currentpage=0;
                         this.hypothesis.splice(0,this.hypothesis.length);
+                        this.hasnext=true
                         this.gethypothesis();
                     }
                 },
@@ -658,7 +668,6 @@
                     else if(this.submode==1){
                         api='http://114.116.53.43/api/users/'+window.localStorage["id"]+'/collected-microcons?page='+this.currentpage+'&per_page=10'
                     }
-                    this.currentpage++;
                     axios({
                         method: 'get',
                         url:api,
@@ -669,7 +678,7 @@
                         
                     }).then(
                         response=>{
-                            debugger
+                            //debugger
                             console.log(response)
                             this.hasnext=response.data._links.next!=null;
                             for(var i=0;i<response.data.items.length;i++){
@@ -687,7 +696,7 @@
                             }
                         }
                     ).catch(function (error) {
-                        debugger
+                        //debugger
                         console.log(error.response)
                         if(error.response.status==400){
                             window.location.href="login.html?type=1" 
@@ -697,7 +706,7 @@
                     return;
                 },
                 gethypothesis:function(){
-                    debugger
+                    //debugger
                     if(!this.hasnext){
                         return;
                     }
@@ -731,7 +740,7 @@
                             }
                         }
                     ).catch(function (error) {
-                        debugger
+                        //debugger
                         console.log(error.response)
                         if(error.response.status==400){
                             window.location.href="login.html?type=1" 

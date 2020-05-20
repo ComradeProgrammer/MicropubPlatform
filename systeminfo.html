@@ -15,6 +15,9 @@
         <div id='app'>
             <!--粘性标题栏-->
             <div class="container-fluid header" v-bind:style="{'background-color':styleobject.front}">
+                <img v-bind:src="darkmode?'static/img/dark_home.png':'static/img/light_home.png'"
+                    style="width: 50px;height: 50px;margin-top:5px;vertical-align: top;" class="main"
+                    onclick="window.location.href='index.html'">
                 <!--img src="static/img/guard.png" style="height:60px;width:60px; margin:5px;"-->
                 <div class="header-content" style="display:inline-block;">系统消息</div>
                 <button  v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"  style="float:right;height:100%;" v-on:click="switchtheme">切换主题</button>
@@ -39,6 +42,7 @@
                         <span v-if="userinfo.confirmed" class="badge badge-primary">已注册</span>
                         <span v-if="userinfo.valid&&userinfo.administrator"class="badge badge-warning">管理员</span>
                         <span v-if="userinfo.valid&&userinfo.forbidden" class="badge badge-danger">封禁中</span>
+                        <span v-if="userinfo.valid&&userinfo.role_name" class="badge badge-success">{{userinfo.role_name}}</span>
                     </div>
                     <hr v-bind:style="{border:'1px solid '+styleobject.content,margin:'10px'}">
                     <div style="width:100%;">
@@ -77,7 +81,7 @@
                             <div class="item card" v-on:click="item_click(item.id)" style="cursor: pointer;">
                                 <div v-bind:class="styleobject.itemheaderclass">{{item.header}}
                                     <span v-if="item.evidence_state&& item.state==0" v-bind:class="{badge:true,'badge-warning':true}">评审中</span>
-                                    <span v-if="item.evidence_state&&item.state==2" v-bind:class="{badge:true,'badge-danger':true}">未通过</span>
+                                    <span v-if="item.evidence_state&&item.state==-1" v-bind:class="{badge:true,'badge-danger':true}">未通过</span>
                                     <span v-if="item.evidence_state&&item.state==1" v-bind:class="{badge:true,'badge-success':true}">已通过</span><br>
                                     <span v-for="badge in item.badges" class="badge badge-pill badge-info mybadge"
                                     style="font-size: 15px;">{{badge}}</span>
@@ -398,6 +402,9 @@
                                 followed:response.data.followers_count,
                                 following:response.data.followeds_count,
                                 avatar:response.data._links.avatar,
+                            }
+                            if(response.data.role_id!=1&&response.data.role_id!=4){
+                                this.userinfo.role_name=response.data.role_name;
                             }
                         }
                         

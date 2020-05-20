@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"> 
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
+        <script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+        <script src="https://cdn.staticfile.org/popper.js/1.15.0/umd/popper.min.js"></script>
+        <script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <script src="https://cdn.staticfile.org/axios/0.18.0/axios.min.js"></script>
+        <title></title>
+    </head>
+    <body>
+        <div id='app'>
+            <!--粘性标题栏-->
+            <div class="container-fluid header" v-bind:style="{'background-color':styleobject.front}">
+                <!--img src="static/img/guard.png" style="height:60px;width:60px; margin:5px;"-->
+                <div class="header-content" style="display:inline-block;">权限组管理</div>
+                <button  v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"  style="float:right;height:100%;" v-on:click="switchtheme">切换主题</button>
+                <div class="dropdown" style="float:right">
+                    <div class="main dropdown-toggle" data-toggle="dropdown" style="width: 75px;height:60px;margin:5px;float: right;padding: 5px;">
+                        <img v-bind:src="mineavatar?mineavatar:'static/img/avater.jpg'" 
+                        style="width:50px;height:50px;">
+                    </div>
+                    <div class="dropdown-menu" v-bind:style="{'background-color':styleobject.front }">
+                        <a class="dropdown-item" href="index.html" v-bind:style="{color:styleobject.content}">首页</a>
+                        <a class="dropdown-item" href="usercenter.html" v-bind:style="{color:styleobject.content}">个人中心</a>
+                        <!--div class="dropdown-divider"></div-->
+                    </div>
+                </div>
+            </div>
+            <!--主体-->
+            <div class="container-fluid" style="margin-top:30px;">
+                <div class="main" v-bind:style="{'background-color':styleobject.front,'width':'90%','margin':'0 auto'}">
+                    <table v-bind:class="{table:true,'table-dark':darkmode,}" v-bind:style="{'background-color':styleobject.front,'margin':'0 auto'}">
+                        <thead>
+                            <tr>
+                            <th>权限组名称</th>
+                            <th>权限组id</th>
+                            <th v-for="perm in perms">{{perm.name}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template v-for="r in roles" >
+                            <tr>
+                                <td>{{r.name}}</td>
+                                <td>{{r.slug}}</td>
+                                <td v-for="p in r.perms">
+                                    <span class="badge badge-danger" v-if="!p">禁止</span>
+                                    <span class="badge badge-success" v-if="p">允许</span>
+                                </td>
+                            </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                    <hr v-bind:style="{border:'1px solid '+styleobject.content,margin:'2px'}">
+                    <div style="height: 20px;"></div>
+                    <div style="width: 90%;margin: 0 auto;">
+                        <span style="font-size: 25px;">添加新的角色组</span>
+                        <div style="height: 20px;"></div>
+                        <label>权限组名</label>
+                        <input type="input" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content}" v-model="group_name">
+                        <label>权限组id</label>
+                        <input type="input" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content}" v-model="group_slug">
+                        <label>权限</label>
+                        <form>
+                            <div class="form-check" v-for="perm2 in perms">
+                            <label class="form-check-label">
+                                <input type="checkbox" class="form-check-input" v-bind:value="perm2.dec" v-model="group_perms">
+                                {{perm2.name}}
+                            </label>
+                            </div>
+                        </form>
+                    </div>
+                    <button type="button" v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}" style="margin:0 auto;margin-top:10px;width:30%;margin-left:5%" v-on:click="create_role">创建一个新角色</button><br>
+                    <div style="height: 20px;"></div>
+                </div>
+            </div>
+            <div style="height: 20px;"></div>
+            
+        </div>
+        
+    </body>
+    <script>
+        var app=new Vue({
+            el:"#app",
+            data:{
+                //主题颜色配置
+                darkmode:true,
+                lightcolor:{
+                    front:"white",
+                    background:"#f6f6f6",
+                    content:"rgb(0,128,255)",
+                    alert:"alert alert-primary",
+                    alerterror:'alert alert-danger',
+                    bgpic:"url('static/img/bg.png')"
+                },
+                darkcolor:{
+                    //front:"#282561",
+                    front:"#3e3e3e",
+                    background:"black",
+                    content:"#28a745",
+                    alert:"alert alert-success",
+                    alerterror:'alert alert-danger',
+                    bgpic:"url('static/img/bgdark.png')"
+                },
+                mineavatar:window.localStorage["avatar"],
+                roles:[],
+                perms:[],
+                group_name:"",
+                group_slug:"",
+                group_perms:[],
+
+            },
+            computed:{
+                styleobject:function(){
+                    if(this.darkmode){
+                        return this.darkcolor;
+                    }
+                    else{
+                        return this.lightcolor;
+                    }
+                },  
+            },
+            methods:{
+                switchtheme:function(){
+                    this.darkmode=!this.darkmode;
+                    document.querySelector('body').style.backgroundColor=this.styleobject.background;
+                    document.querySelector('body').style.color=this.styleobject.content;
+                    document.querySelector('body').style.backgroundImage=this.styleobject.bgpic;
+                    window.localStorage["dark"]=this.darkmode;
+                },
+                getAllGroup:function(){
+					axios({
+						method: 'get',
+						url:"http://114.116.53.43/api/roles?page=1&per_page=10000",
+						headers:{
+							'Content-Type':'application/json',
+							'Cache-Control': 'no-cache',
+							'Authorization':'Bearer '+window.localStorage["token"],
+						},
+					}).then(
+						response=>{
+							for(var i=0;i<response.data.items.length;i++){
+                                var tmp={
+									id:response.data.items[i].id,
+									name:response.data.items[i].name,
+                                    slug:response.data.items[i].slug
+								}
+                                tmp.perms=[]
+                                for(var j=0;j<this.perms.length;j++){
+                                    if((this.perms[j].dec)&(response.data.items[i].permissions)){
+                                        tmp.perms.push(true)
+                                    }
+                                    else{
+                                        tmp.perms.push(false)
+                                    }
+                                }
+								this.roles.push(tmp)
+							}        
+						} 
+					).catch(function (error) {
+						if(error.response.status==400){
+							if(!error.response.data.message){
+								window.location.href="login.html?type=1";
+								return;
+							} 
+						}
+						else if(error.response==403){
+							alert("您没有权限");
+							window.location.reload();
+						}
+					}.bind(this))
+				},
+                create_role:function(){
+                    if(this.group_name==""||this.group_slug==""){
+                        alert("权限名和id不能为空")
+                        return 
+                    }
+                    var bundle={
+                        name:this.group_name,
+                        slug:this.group_slug,
+                        permissions:this.permissions
+                    }
+                    axios({
+						method: 'POST',
+						url:"http://114.116.53.43/api/roles/",
+						headers:{
+							'Content-Type':'application/json',
+							'Cache-Control': 'no-cache',
+							'Authorization':'Bearer '+window.localStorage["token"],
+						},
+                        data:JSON.stringify(bundle),
+					}).then(
+						response=>{
+                            alert("创建成功");
+                            window.reload();
+						} 
+					).catch(function (error) {
+						if(error.response.status==400){
+							if(!error.response.data.message){
+								window.location.href="login.html?type=1";
+								return;
+							} 
+						}
+						else if(error.response==403){
+							alert("您没有权限");
+							window.location.reload();
+						}
+					}.bind(this))
+                },
+                getAllPerms:function(){
+					axios({
+						method: 'get',
+						url:"http://114.116.53.43/api/roles/perms",
+						headers:{
+							'Content-Type':'application/json',
+							'Cache-Control': 'no-cache',
+							'Authorization':'Bearer '+window.localStorage["token"],
+						},
+					}).then(
+						response=>{
+                            console.log(response.data)
+							this.perms=response.data 
+                            this.getAllGroup();
+						} 
+					).catch(function (error) {
+						if(error.response.status==400){
+							if(!error.response.data.message){
+								window.location.href="login.html?type=1";
+								return;
+							} 
+						}
+						else if(error.response==403){
+							alert("您没有权限");
+							window.location.reload();
+						}
+					}.bind(this))
+				},
+            },
+            
+            mounted(){
+                if(!window.localStorage["dark"]||window.localStorage["dark"]=="false"){
+                    this.darkmode=false;
+                }
+                else{
+                    this.darkmode=true;
+                }
+                document.querySelector('body').style.backgroundColor=this.styleobject.background;
+                document.querySelector('body').style.color=this.styleobject.content;
+                document.querySelector('body').style.backgroundImage=this.styleobject.bgpic;
+                document.querySelector('body').style.backgroundAttachment="fixed";
+                document.querySelector('body').style.backgroundSize='cover';
+                this.getAllPerms();
+            }
+        })
+    </script>
+    <link rel="stylesheet" type="text/css" href="static/css/header.css">
+    <link rel="stylesheet" type="text/css" href="static/css/main.css">
+    <style>
+        
+    </style>
+</html>

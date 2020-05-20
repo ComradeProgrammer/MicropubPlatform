@@ -46,7 +46,7 @@
                         <!--标题-->
                         <h3>{{header}} 
                         <span v-if="state==0" v-bind:class="{badge:true,'badge-warning':true}">评审中</span>
-                        <span v-if="state==2" v-bind:class="{badge:true,'badge-danger':true}">未通过</span>
+                        <span v-if="state==-1" v-bind:class="{badge:true,'badge-danger':true}">未通过</span>
                         <span v-if="state==1" v-bind:class="{badge:true,'badge-success':true}">已通过</span>
                         </h3>
                     </div>
@@ -54,7 +54,7 @@
                     <div class="main middle-body" v-bind:style="{'background-color':styleobject.front}">
                         <span style="font-size: 20px;">{{content}}</span><br>
                         <div style="height: 40px;width: 100%;">
-                            <div class="btn-group" style="width:50% ;float: right;">
+                            <div class="btn-group" style="width:50% ;float: right;" v-show="state!=0">
                                 <button v-bind:class="{btn:true,leftbutton:true,
                                     'btn-outline-primary':!darkmode&&!liked,'btn-outline-success':darkmode&&!liked,
                                     'btn-primary':!darkmode&&liked,'btn-success':darkmode&&liked}" v-on:click="like_click">
@@ -68,16 +68,10 @@
                         </div>
                         <hr v-bind:style="{border:'1px solid '+styleobject.content,margin:'3px'}">
                         <div v-if="state==0" style="text-align:center;width:100%">
-                            <button class="btn btn-danger" v-on:click="judge(false)">否定微猜想</button>
-                            <div style="width:50%;display: inline-block;">
-                                <div class="progress" >
-                                    <div class="progress-bar bg-danger progress-bar-striped" v-bind:style="{width:100-probar+'%'}">{{con}}</div>
-                                    <div class="progress-bar bg-success progress-bar-striped" v-bind:style="{width:probar+'%'}">{{pro}}</div> 
-                                </div>
-                            </div>
-                            <button class="btn btn-success" v-on:click="judge(true)">肯定微猜想</button>
+                            
                         </div>
                     </div>
+                    
                     <!--引用的微证据-->
                     <div style="width: 100%; cursor: pointer;line-height: 20px;margin-left: 1%;">
                         <div class="main middle-body " v-bind:style="{'background-color':styleobject.front,'font-size':'20px',
@@ -98,8 +92,32 @@
                             <span style="font-size: 15px;">点击查看详情</span>
                         </div>
                     </div>
-                    <!--评论区-->
+
+                    <div class="main middle-body" v-bind:style="{'background-color':styleobject.front,'font-size':'0'}"
+                    v-show="state==0&&!judged">
+                        <label style="font-size: 20px;">请在此输入对微猜想做出的评审意见</label><br>
+                        <label style="font-size: 15px;color:red">对每个微猜想评审机会只有一次，评审意见一经给出就无法修改或删除，请务必谨慎填写</label>
+                        <textarea type="input" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content,height:'100px','padding-top':0}" v-model="judge_information" id="commenttext"></textarea>
+                        <div style="height: 5px;"></div>
+                        <button class="btn btn-danger" v-on:click="judge(false)">否定微猜想</button>    
+                        <button class="btn btn-success" v-on:click="judge(true)" style="float: right;">肯定微猜想</button>
+                    </div>
                     <div class="main middle-body" v-bind:style="{'background-color':styleobject.front,'font-size':'20px'}">
+                        评审意见
+                    </div>
+                    <div v-for="j in judge_reason" class="main judge" v-bind:style="{'background-color':styleobject.front,
+                    }" >
+                        某评审者
+                        <span v-if="j.state==-1" v-bind:class="{badge:true,'badge-danger':true}">否定</span>
+                        <span v-if="j.state==1" v-bind:class="{badge:true,'badge-success':true}">肯定</span>
+                        :{{j.reason}}
+                        <div style="width: 100%;">发表于:{{j.time}}
+                            
+                        </div>
+                    </div>
+                    <!--评论区-->
+                    <div class="main middle-body" v-bind:style="{'background-color':styleobject.front,'font-size':'20px','margin-top':'10px'}"
+                     v-show="state!=0">
                         评论区
                     </div>
 
@@ -109,8 +127,9 @@
                         <button v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode,}"
                         style="margin:10px;" v-on:click="send_comment">发表评论</button>
                     </div>
+                    
 
-                    <div v-for="comment in comments" class="main comment" v-bind:style="{'background-color':styleobject.front}">
+                    <div v-for="comment in comments" class="main comment" v-bind:style="{'background-color':styleobject.front}" v-show="state!=0">
                         <a  v-bind:href="'userinfo.html?id='+comment.id">@{{comment.username}}</a>:{{comment.content}}
                         <div style="width: 100%;">发表于:{{comment.date}}
                             <span style="float: right;">
@@ -123,9 +142,10 @@
                         </div>
                     </div>
 
-                    <div class="main middle-body" v-bind:style="{'background-color':styleobject.front,'text-align':'center',width:'100%',margin:'0 auto','cursor':'pointer'}" v-show="comments.length==0">
+                    <div class="main middle-body" v-bind:style="{'background-color':styleobject.front,'text-align':'center',width:'100%',margin:'0 auto','cursor':'pointer'}" v-show="state!=0&&comments.length==0" >
                         暂无评论
                     </div>
+                    <div style="height: 20px;"></div>
                 </div>
                 <!--右侧-->
                 <div class="right">
@@ -133,7 +153,7 @@
                         <strong>微猜想详情</strong><br>
                         发表时间:{{time}}<br>
                         <span v-if="state==0" v-bind:class="{badge:true,'badge-warning':true}">评审中</span>
-                        <span v-if="state==2" v-bind:class="{badge:true,'badge-danger':true}">未通过</span>
+                        <span v-if="state==-1" v-bind:class="{badge:true,'badge-danger':true}">未通过</span>
                         <span v-if="state==1" v-bind:class="{badge:true,'badge-success':true}">已通过</span>
                         <table style="width:100%;text-align: center;" >
                             <thead>
@@ -145,6 +165,12 @@
                                 <td style="color:#28a745">{{pro}}</td>
                             </tr></tbody>
                         </table>
+                        <div style="width:100%;display: inline-block;">
+                            <div class="progress" >
+                                <div class="progress-bar bg-danger progress-bar-striped" v-bind:style="{width:100-probar+'%'}"></div>
+                                <div class="progress-bar bg-success progress-bar-striped" v-bind:style="{width:probar+'%'}"></div> 
+                            </div>
+                        </div>
                         <hr v-bind:style="{border:'1px solid '+styleobject.content,margin:'3px'}">
                         <table style="width:100%;text-align: center;" >
                             <thead>
@@ -170,6 +196,7 @@
                         <span v-if="userinfo.confirmed" class="badge badge-primary">已注册</span>
                         <span v-if="userinfo.valid&&userinfo.administrator"class="badge badge-warning">管理员</span>
                         <span v-if="userinfo.valid&&userinfo.forbidden" class="badge badge-danger">封禁中</span>
+                        <span v-if="userinfo.valid&&userinfo.role_name" class="badge badge-success">{{userinfo.role_name}}</span>
                         <br>
                         <a v-bind:href="'userinfo.html?id='+userinfo.id" style="font-size: 12px;">前往Ta的个人主页></a><br>
                         <img v-bind:src="userinfo.avatar?userinfo.avatar:'static/img/avater.jpg'" class="avatar"><br>
@@ -229,6 +256,9 @@
                 collected:false,
                 evidence1:{},
                 evidence2:{},
+                judge_information:"",
+                judge_reason:[],
+                judged:false,
                 //评论区详情
                 comments:[],
                 //userinfo
@@ -297,7 +327,24 @@
                             this.comments.splice(0,this.comments);
                             this.pro=response.data.pros_num;
                             this.con=response.data.cons_num;
-                            
+                            var judged_id=[]
+                            for(var i=0;i<response.data.pros_num;i++){
+                                this.judge_reason.push({
+                                    reason:response.data.pros[i].reason,
+                                    time:response.data.pros[i].timestamp.substring(0,10),
+                                    state:1
+                                })
+                                judged_id.push(response.data.pros[i].user_id)
+                            }
+                            for(var i=0;i<response.data.cons_num;i++){
+                                this.judge_reason.push({
+                                    reason:response.data.cons[i].reason,
+                                    time:response.data.cons[i].timestamp.substring(0,10),
+                                    state:-1
+                                })
+                                judged_id.push(response.data.pros[i].user_id)
+                            }
+                            this.judged=judged_id.includes(parseInt(window.localStorage["id"]))
                             for(var i=0;i<this.remark;i++){
                                 this.comments.push({
                                     username:response.data.comments[i].author.username,
@@ -359,6 +406,9 @@
                                 followed:response.data.followers_count,
                                 following:response.data.followeds_count,
                                 avatar:response.data._links.avatar,
+                            }
+                            if(response.data.role_id!=1&&response.data.role_id!=4){
+                                this.userinfo.role_name=response.data.role_name;
                             }
                         } 
                     ).catch(function (error) {
@@ -504,13 +554,20 @@
                     else{
                         api='http://114.116.53.43/api/microcons/'+this.getQueryVariable("id")+'/con'
                     }
+                    var bundle={reason:this.judge_information}
+                    if(this.judge_information==""){
+                        alert("请填写评审理由")
+                        return
+                    }
                     axios({
-                        method: 'get',
+                        method: 'post',
                         url:api,
                         headers:{
+                            'Content-Type': 'application/json',
                             'Cache-Control': 'no-cache',
                             'Authorization':'Bearer '+window.localStorage["token"],
                         },
+                        data:JSON.stringify(bundle),
                     }).then(
                         response=>{
                             console.log(response)
@@ -535,6 +592,7 @@
                             window.history.back(-1);
                         }
                         else {
+                            console.log(error.response)
                             alert("您已经评价过该猜想")
                         }
                     }.bind(this))
@@ -719,7 +777,7 @@
             font-size: 15px;
             padding:2%;
             margin: 0 auto;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             border-radius: 15px;
         }
         .right{
@@ -751,6 +809,13 @@
             display: -webkit-box;
             -webkit-box-orient: vertical;
             -webkit-line-clamp: 5;
+        }
+        .judge{
+            width:100%;
+            height:auto;
+            font-size: 15px;
+            padding:2%;
+            margin: 0 auto;
         }
     </style>
 </html>
