@@ -41,7 +41,7 @@
                     <div class="main middle-header" v-bind:style="{'background-color':styleobject.front}">
                         <!--标签-->
                         <span v-for="topic in topics" style="margin-left:5px;"
-                        v-bind:class="{badge:true,'badge-pill':true,'badge-primary':!darkmode,'badge-success':darkmode}">{{topic}}</span>
+                        v-bind:class="{badge:true,'badge-pill':true,'badge-lightself':!darkmode,'badge-success':darkmode}">{{topic}}</span>
                         <hr v-bind:style="{border:'1px solid '+styleobject.content,margin:'3px'}">
                         <!--标题-->
                         <h3>{{header}} 
@@ -198,7 +198,7 @@
                         <span v-if="userinfo.valid&&userinfo.forbidden" class="badge badge-danger">封禁中</span>
                         <span v-if="userinfo.valid&&userinfo.role_name" class="badge badge-success">{{userinfo.role_name}}</span>
                         <br>
-                        <a v-bind:href="'userinfo.html?id='+userinfo.id" style="font-size: 12px;">前往Ta的个人主页></a><br>
+                        <a v-bind:href="'userinfo.html?id='+userinfo.id" style="font-size: 12px; color: #2E4E7E">前往Ta的个人主页></a><br>
                         <img v-bind:src="userinfo.avatar?userinfo.avatar:'static/img/avater.jpg'" class="avatar"><br>
                         
                         <table style="width:100%" v-if="userinfo.valid">
@@ -227,7 +227,7 @@
                 lightcolor:{
                     front:"white",
                     background:"#f6f6f6",
-                    content:"rgb(0,128,255)",
+                    content:"#2e4e7e",
                     alert:"alert alert-primary",
                     alerterror:'alert alert-danger',
                     bgpic:"url('static/img/bg.png')"
@@ -817,5 +817,17 @@
             padding:2%;
             margin: 0 auto;
         }
+		.btn-primary {
+			background-color: #2e4e7e;
+			border-color: #2e4e7e;
+		}
+		.btn-outline-primary {
+			color: #2e4e7e;
+			border-color: #2e4e7e;
+		}
+		.badge-lightself {
+			background-color: #2e4e7e;
+			color: #ffffff
+		}
     </style>
 </html>

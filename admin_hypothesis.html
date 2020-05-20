@@ -66,7 +66,7 @@
                 lightcolor:{
                     front:"white",
                     background:"#f6f6f6",
-                    content:"rgb(0,128,255)",
+                    content:"#2e4e7e",
                     alert:"alert alert-primary",
                     alerterror:'alert alert-danger',
                     bgpic:"url('static/img/bg.png')"
@@ -154,7 +154,7 @@
 					},
 					//详情按钮
 					getDetail:function(id){
-						window.location.href="hypothesis_detail.html?id="+id;
+						window.open("hypothesis_detail.html?id="+id, "_blank");
 					},
 					//删除按钮
 					deleteHypothesis:function(id){
@@ -215,5 +215,9 @@
             padding-left:15px;
             padding-right:15px;
         }
+		.btn-primary {
+			background-color: #2e4e7e;
+			border-color: #2e4e7e;
+		}
     </style>
 </html>
