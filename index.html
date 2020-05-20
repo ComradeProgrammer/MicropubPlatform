@@ -68,12 +68,17 @@
                                     'border-right':mode==6?'5px solid gray':'none',
                                     'border-radius':mode==6?'0':'.25rem'}"
                         v-on:click="changemode(6)">关注动态</button>
+                        <button v-bind:class="{btn:true,leftbutton:true,'btn-primary':!darkmode,'btn-success':darkmode}"
+                        v-bind:style="{'border-left':mode==7?'5px solid gray':'none',
+                                    'border-right':mode==7?'5px solid gray':'none',
+                                    'border-radius':mode==7?'0':'.25rem'}"
+                        v-on:click="changemode(7)">项目孵化器</button>
                     </div>
                 </div>
 
                 <!--中部内容-->
                 <div class="middle" >
-                    <template v-if="mode!=6">
+                    <template v-if="mode!=6&&mode!=7">
                         <!--渲染核心条目-->
                         <template v-for="item in maindata">
                             <div class="item card" v-on:click="item_click(item.id)" style="cursor: pointer;">
@@ -117,7 +122,20 @@
                             </div>
                         </template> 
                     </template>
+                    <template v-else-if="mode==7">
+                        <template v-for="item in maindata">
+                            <div class="item card" v-on:click="item_click(item.id)" style="cursor: pointer;">
+                                <div v-bind:class="styleobject.itemheaderclass">{{item.header}}</div>
+                                <div v-bind:class="styleobject.itembodyclass">
+                                    项目简介:{{item.content}}
+                                    <hr v-bind:style="{border:'1px solid '+styleobject.content,margin:'2px'}">
+                                    赞助人:{{item.sponsor}}项目发起时间:{{item.time}}
 
+                                </div>
+                                
+                            </div>
+                        </template> 
+                    </template>
                     <div class="main"  v-bind:style="{'background-color':styleobject.front,'width':'100%', height:'40px', 'text-align':'center', 'font-size':'15px', 'padding':'7px','cursor':'pointer'}"
                     v-on:click="moreitem()">{{hasnext?'点击加载更多':'已经没有更多了'}}</div>
                     <div style="height:40px;"></div>
@@ -282,6 +300,9 @@
                 getmaindata:function(){
                     if(this.mode==6){
                         this.get_following();
+                    }
+                    else if(this.mode==7){
+                        this.get_cradle();
                     }
                     else{
                         var api="";
@@ -458,6 +479,48 @@
                         }
                     }.bind(this));
                 },
+                get_cradle:function(){
+                    if(!this.hasnext){
+                        return;
+                    }
+                    this.currentpage++
+                    var api='http://114.116.53.43/api/cradles?page='+this.currentpage+'&per_page=10';
+
+                   
+                    // toso test api
+                    axios({
+                        method: 'get',
+                        url:api,
+                        headers:{
+                            'Cache-Control': 'no-cache',
+                            'Authorization':'Bearer '+window.localStorage["token"],
+                        },
+                        
+                    }).then(
+                        response=>{
+                            //debugger
+                            console.log(response)
+                            this.hasnext=response.data._links.next!=null;
+                            for(var i=0;i<response.data.items.length;i++){
+                                var tmp={
+                                    header:response.data.items[i].title,
+                                    content:response.data.items[i].body,
+                                    id:response.data.items[i].id,
+                                    sponsor:response.data.items[i].sponsor.username,
+                                    time:response.data.items[i].timestamp
+                                }
+                                this.maindata.push(tmp)
+                            }
+                        }
+                    ).catch(function (error) {
+                        if(error.response.status==400&&!error.response.data.message){
+                            window.location.href="login.html?type=1" 
+                        }
+                        else{
+                            //alert("发生错误");
+                        }
+                    }.bind(this));
+                },
                 item_click:function(x){
                     if(this.mode==0||this.mode==3){
                         window.open("evidence_detail.html?id="+x)
@@ -472,6 +535,9 @@
                         else{
                             window.open("hypothesis_detail.html?id="+x)
                         }
+                    }
+                    else if(this.mode==7){
+                        window.open("cradle.html?id="+x)
                     }
                 },
                 load_notifications(){
