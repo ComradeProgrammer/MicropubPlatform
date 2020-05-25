@@ -39,7 +39,13 @@
 							<template v-for="evi in evidenceData">
                             <tr>								
                                 <td>{{evi.time}}</td>
-                                <td>{{evi.title}}</td>
+                                <td>
+                                    {{evi.title}}
+                                    <span v-if="evi.status==0" v-bind:class="{badge:true,'badge-warning':true}">评审中</span>
+                                    <span v-if="evi.status==-1" v-bind:class="{badge:true,'badge-danger':true}">未通过</span>
+                                    <span v-if="evi.status==1" v-bind:class="{badge:true,'badge-success':true}">已通过</span>
+                                    <br>
+                                </td>
 								<!--<th>{{evi.author}}</th>-->
                                 <td>{{evi.content}}</td>
                                 <td>
@@ -107,7 +113,7 @@
 				//微证据列表
                 getEvidenceList:function(){
 					this.currentpage++;
-				    var api='http://114.116.53.43/api/micropubs?page='+this.currentpage+'&per_page=10';
+				    var api='http://114.116.53.43/api/micropubs?status=0,1,-1&page='+this.currentpage+'&per_page=10';
 				    if(!this.hasnext){
 					   return
 				    }
@@ -130,7 +136,7 @@
 									time:response.data.items[i].timestamp,
 							        title:response.data.items[i].title,
 							        content:response.data.items[i].summary,
-							        hot:false,
+							        status:response.data.items[i].status,
 							    })
 							}
 						}
@@ -140,6 +146,7 @@
 						}
 						else{
 							alert("发生错误")
+                            console.log(error.response)
 						}
 					}.bind(this));
 				},

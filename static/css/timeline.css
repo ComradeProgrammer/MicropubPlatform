@@ -12,9 +12,9 @@ ul li {
 
 .track-list li {
     position: relative;
-    padding: 9px 0 0 25px;
+    padding: 9px 9px 9px 9px;
     line-height: 18px;
-    border-left: 1px solid #d9d9d9;
+    border-left: 2px solid red;
     color: #999;
 }
 

@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"> 
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
+        <script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+        <script src="https://cdn.staticfile.org/popper.js/1.15.0/umd/popper.min.js"></script>
+        <script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <script src="https://cdn.staticfile.org/axios/0.18.0/axios.min.js"></script>
+        <title></title>
+    </head>
+    <body>
+        <div id='app'>
+            <!--粘性标题栏-->
+            <div class="container-fluid header" v-bind:style="{'background-color':styleobject.front}">
+                <!--img src="static/img/guard.png" style="height:60px;width:60px; margin:5px;"-->
+                <img v-bind:src="darkmode?'static/img/dark_back.png':'static/img/light_back.png'"
+                    style="width: 50px;height: 50px;margin-top:5px;vertical-align: top;" class="main"
+                    onclick="window.history.back(-1)">
+                <div class="header-content" style="display:inline-block;" >搜索</div>
+                <button  v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"  style="float:right;height:100%;" v-on:click="switchtheme">切换主题</button>
+                <div class="dropdown" style="float:right">
+                    <div class="main dropdown-toggle" data-toggle="dropdown" style="width: 75px;height:60px;margin:5px;float: right;padding: 5px;">
+                        <img v-bind:src="mineavatar?mineavatar:'static/img/avater.jpg'" 
+                        style="width:50px;height:50px;">
+                    </div>
+                    <div class="dropdown-menu" v-bind:style="{'background-color':styleobject.front }">
+                        <a class="dropdown-item" href="index.html" v-bind:style="{color:styleobject.content}">首页</a>
+                        <a class="dropdown-item" href="usercenter.html" v-bind:style="{color:styleobject.content}">个人中心</a>
+                        <!--div class="dropdown-divider"></div-->
+                    </div>
+                </div>
+                <div style="float: right;width:40%;margin-top: 20px;">
+                    <input class="form-control" v-bind:style="{display:'inline-block',width:'80%','background-color':styleobject.front,color:styleobject.content}" v-model="search_content" placeholder="搜索内容至少应包含三个字符">
+                    <button  v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"
+                    style="vertical-align:bottom;" v-on:click="search">搜索</button>
+                </div> 
+            </div>
+            <!--主体-->
+            <div class="container-fluid" style="margin-top:30px;">
+                <div class="main middle" v-bind:style="{'background-color':styleobject.front,'font-size':'0'}">
+                    <nav v-bind:class="{navbar:true,'navbar-expand-sm':true ,'navbar-dark':true,main:true,'bg-primary':!darkmode,'bg-success':darkmode}" style="width:100%;margin:0 auto;margin-bottom:10px;font-size: 17px;">
+                        <ul class="navbar-nav">
+                          <li v-bind:class="{'nav-item':true,'active':mode==0}" style="cursor: pointer;" v-on:click="changemode(0)">
+                            <span class="nav-link" >微证据</span>
+                          </li>
+                          <li v-bind:class="{'nav-item':true,'active':mode==1}" style="cursor: pointer;" v-on:click="changemode(1)">
+                            <span class="nav-link" >微猜想</span>
+                          </li>
+                          <li v-bind:class="{'nav-item':true,'active':mode==2}" style="cursor: pointer;" v-on:click="changemode(2)">
+                            <span class="nav-link" >用户</span>
+                          </li>
+                        </ul>
+                      </nav>
+                </div>
+                <template v-if="mode==0">
+                    <div class="middle">
+                        <template v-for="evidence in evidences">
+                            <div class="item card" style="opacity: 0.8;cursor: pointer;" v-on:click="goto_evidence(evidence.id)">
+                                <div v-bind:class="styleobject.itemheaderclass">{{evidence.header}}<br>
+                                    <span class="badge badge-pill badge-info mybadge" v-for="b in evidence.badges">{{b}}</span>
+                                </div>
+                                <div v-bind:class="styleobject.itembodyclass">{{evidence.content}}</div>
+                            </div>
+                        </template>
+                        <div class="main" v-bind:style="{'background-color':styleobject.front,'text-align':'center',width:'100%',margin:'0 auto','cursor':'pointer','padding':'1%'}" v-on:click="getevidences">
+                            {{hasnext?'点击加载更多':'已经没有更多了'}}
+                        </div>
+                    </div>  
+                </template>
+                <template v-if="mode==1">
+                    <div class="middle">
+                        <template v-for="h in hypothesis"> 
+                            <div class="item card" v-on:click="goto_hypothesis(h.id)" style="cursor: pointer;">
+                                <div v-bind:class="styleobject.itemheaderclass">{{h.header}}
+                                    <span v-if="h.evidence_state&& h.state==0" v-bind:class="{badge:true,'badge-warning':true}">评审中</span>
+                                    <span v-if="h.evidence_state&&h.state==-1" v-bind:class="{badge:true,'badge-danger':true}">未通过</span>
+                                    <span v-if="h.evidence_state&&h.state==1" v-bind:class="{badge:true,'badge-success':true}">已通过</span>
+                                    <br>
+                                    <span v-for="badge in h.badges" class="badge badge-pill badge-info mybadge">{{badge}}</span>
+                                    <span v-if="h.hot" class="badge badge-danger mybadge">HOT</span>
+                                </div>
+                                <div v-bind:class="styleobject.itembodyclass">{{h.content}}</div>
+                            </div>
+                        </template>
+                        <div class="main" v-bind:style="{'background-color':styleobject.front,'text-align':'center',width:'100%',margin:'0 auto','cursor':'pointer','padding':'1%'}" v-on:click="gethypothesis">
+                            {{hasnext?'点击加载更多':'已经没有更多了'}}
+                        </div>
+                    </div>
+                </template>
+                <template v-if="mode==2">
+                    <div class="middle">
+                        <template v-for="f in users">
+                            <div class="main people"v-bind:style="{'background-color':styleobject.bgtransparent,width:cardwidth}">
+                                <img v-bind:src="f.avatar?f.avatar:'static/img/avater.jpg'" class="people-avater">
+                                <div style="display: inline-block;vertical-align: top;width:65%">
+                                    <h4>{{f.username}}</h4>
+                                    <span v-if="f.valid" class="badge badge-primary">已认证</span>
+                                    <span v-if="f.administrator" class="badge badge-warning">管理员</span>
+                                    <span v-if="f.forbidden" class="badge badge-danger">封禁中</span><br>
+                                    <button v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"
+                                        style="font-size: 12px;"  v-on:click="goto_userinfo(f.id)">个人中心</button>
+                                </div>
+                            </div>
+                        </template>
+                        <div class="main" v-bind:style="{'background-color':styleobject.front,'text-align':'center',width:'100%',margin:'0 auto','cursor':'pointer','padding':'1%'}" v-on:click="getusersdata">
+                            {{hasnext?'点击加载更多':'已经没有更多了'}}
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </body>
+    <script>
+        var app=new Vue({
+            el:"#app",
+            data:{
+                //主题颜色配置
+                darkmode:true,
+                lightcolor:{
+                    front:"white",
+                    background:"#f6f6f6",
+                    content:"#2e4e7e",
+                    alert:"alert alert-primary",
+                    alerterror:'alert alert-danger',
+                    bgpic:"url('static/img/bg.png')",
+                    itemheaderclass:['item-header','bg-primary','text-white'],
+                    itembodyclass:['item-body'],
+                    
+                },
+                darkcolor:{
+                    //front:"#282561",
+                    front:"#3e3e3e",
+                    background:"black",
+                    content:"#28a745",
+                    alert:"alert alert-success",
+                    alerterror:'alert alert-danger',
+                    bgpic:"url('static/img/bgdark.png')",
+                    itembodyclass:['item-body','bg-dark'],
+                    itemheaderclass:['item-header','bg-success','text-white'],
+                },
+                mineavatar:window.localStorage["avatar"],
+                content:"",
+                mode:0,
+                evidences:[],
+                hypothesis:[],
+                tagsdata:[],
+                currentpage:0,
+                hasnext:true,
+                users:[],
+                search_content:""
+            },
+            computed:{
+                styleobject:function(){
+                    if(this.darkmode){
+                        return this.darkcolor;
+                    }
+                    else{
+                        return this.lightcolor;
+                    }
+                },  
+                cardwidth:function(){
+                    if(this.windowwidth<925){
+                        return "96%";
+                    }
+                    return "48%";
+                }
+            },
+            methods:{
+                switchtheme:function(){
+                    this.darkmode=!this.darkmode;
+                    document.querySelector('body').style.backgroundColor=this.styleobject.background;
+                    document.querySelector('body').style.color=this.styleobject.content;
+                    document.querySelector('body').style.backgroundImage=this.styleobject.bgpic;
+                    window.localStorage["dark"]=this.darkmode;
+                },
+                search:function(){
+                    if(this.search_content!='')
+                        window.location.href="search.html?text="+this.search_content
+                },
+                getQueryVariable:function (variable){
+                    var query = window.location.search.substring(1);
+                    var vars = query.split("&");
+                    for (var i=0;i<vars.length;i++) {
+                        var pair = vars[i].split("=");
+                        if(pair[0] == variable){return pair[1];}
+                    }
+                    return(false);
+                },
+                changemode:function(x){
+                    this.mode=x
+                    if(x==0){
+                        this.evidences.splice(0,this.evidences.length)
+                        this.hasnext=true
+                        this.currentpage=0
+                        this.getevidences()
+                    }
+                    else if(x==1){
+                        this.hypothesis.splice(0,this.hypothesis.length)
+                        this.hasnext=true
+                        this.currentpage=0
+                        this.gethypothesis()
+                    }
+                    else if(x==2){
+                        debugger
+                        this.users.splice(0,this.users.length)
+                        this.hasnext=true
+                        this.currentpage=0
+                        this.getusersdata()
+                    }
+                },
+                getevidences:function(){
+                    debugger
+                    if(!this.hasnext){
+                        return;
+                    }
+                    this.currentpage++;
+                    axios({
+                        method: 'get',
+                        url:'http://114.116.53.43/api/search/?q='+this.content+'&category=micropub&per_page=10&page='+this.currentpage,
+                        headers:{
+                            'Cache-Control': 'no-cache',
+                            'Authorization':'Bearer '+window.localStorage["token"],
+                        },
+                        
+                    }).then(
+                        response=>{
+                            debugger
+                            console.log(response)
+                            this.hasnext=response.data.data._links.next!=null;
+                            for(var i=0;i<response.data.data.items.length;i++){
+                                this.evidences.push({
+                                    id:response.data.data.items[i].id,
+                                    header:response.data.data.items[i].title,
+                                    content:response.data.data.items[i].summary,
+                                    badges:response.data.data.items[i].tags,
+                                })
+                            }
+                        }
+                    ).catch(function (error) {
+                        //debugger
+                        if(error.response.status==400&&!error.response.data.message){
+                            window.location.href="login.html?type=1" 
+                        }
+                        else if(error.response.status==404){
+                            window.location.href="login.html"
+                        }
+                        console.log(error.response);
+                    }.bind(this));
+                },
+                gethypothesis:function(){
+                    //debugger
+                    if(!this.hasnext){
+                        return;
+                    }
+
+                    this.currentpage++;
+                    axios({
+                        method: 'get',
+                        url:'http://114.116.53.43/api/search/?q='+this.content+'&category=microcon&per_page=10&page='+this.currentpage,
+                        headers:{
+                            'Cache-Control': 'no-cache',
+                            'Authorization':'Bearer '+window.localStorage["token"],
+                        },
+                        
+                    }).then(
+                        response=>{
+                            debugger
+                            console.log(response)
+                            this.hasnext=response.data.data._links.next!=null;
+                            for(var i=0;i<response.data.data.items.length;i++){
+                                this.hypothesis.push({
+                                    id:response.data.data.items[i].id,
+                                    header:response.data.data.items[i].title,
+                                    content:response.data.data.items[i].summary,
+                                    badges:response.data.data.items[i].tags,
+                                    evidence_state:true,
+                                    state:response.data.data.items[i].status,
+                                    
+                                })
+                            }
+                        }
+                    ).catch(function (error) {
+                        //debugger
+                        console.log(error.response)
+                        if(error.response.status==400&&!error.response.data.message){
+                            window.location.href="login.html?type=1" 
+                        }
+                        else if(error.response.status==404){
+                            window.location.href="login.html"
+                        }
+                        console.log(error.response);
+                    }.bind(this));
+                },
+                getusersdata:function(){
+                    if(!this.hasnext){
+                        return;
+                    }
+                    this.currentpage++;
+                    axios({
+                        method: 'get',
+                        url:'http://114.116.53.43/api/search/?q='+this.content+'&category=user&per_page=10&page='+this.currentpage,
+                        headers:{
+                            'Cache-Control': 'no-cache',
+                            'Authorization':'Bearer '+window.localStorage["token"],
+                        },
+                        
+                    }).then(
+                        response=>{
+                            console.log(response)
+                            this.hasnext=response.data.data._links.next!=null;
+                            for(var i=0;i<response.data.data.items.length;i++){
+                                this.users.push({
+                                    valid:true,
+                                    username:response.data.data.items[i].username,
+                                    forbidden:false,
+                                    administrator:false,
+                                    id:response.data.data.items[i].id,
+                                    avatar:response.data.data.items[i]._links.avatar,
+                                })
+                            }
+                        }
+                    ).catch(function (error) {
+                        //debugger
+                        if(error.response.status==400&&!error.response.data.message){
+                            window.location.href="login.html?type=1" 
+                        }
+                        else if(error.response.status==404){
+                            window.location.href="login.html"
+                        }
+                        console.log(error.response);
+                    }.bind(this));
+                },
+                goto_userinfo:function(x){
+                    window.open("userinfo.html?id="+x); 
+                },
+                goto_evidence:function(id){
+                    window.open("evidence_detail.html?id="+id);
+                },
+                goto_hypothesis:function(id){
+                    window.open("hypothesis_detail.html?id="+id);
+                },
+            },
+            mounted(){
+                if(!window.localStorage["dark"]||window.localStorage["dark"]=="false"){
+                    this.darkmode=false;
+                }
+                else{
+                    this.darkmode=true;
+                }
+                document.querySelector('body').style.backgroundColor=this.styleobject.background;
+                document.querySelector('body').style.color=this.styleobject.content;
+                document.querySelector('body').style.backgroundImage=this.styleobject.bgpic;
+                document.querySelector('body').style.backgroundAttachment="fixed";
+                document.querySelector('body').style.backgroundSize='cover';
+                this.content=decodeURI(this.getQueryVariable("text"))
+                this.changemode(0)
+            }
+        })
+    </script>
+    <link rel="stylesheet" type="text/css" href="static/css/header.css">
+    <link rel="stylesheet" type="text/css" href="static/css/main.css">
+    <style>
+        .btn-primary {
+        	background-color: #2e4e7e;
+        	border-color: #2e4e7e;
+        }
+        .btn-outline-primary {
+			color: #2e4e7e;
+			border-color: #2e4e7e;
+		}
+		.bg-primary {
+			background-color: #2e4e7e !important;
+		}
+        .middle{
+            width:80%;
+            margin:0 auto;
+        }
+        .item{
+            width:100%;
+            margin:0px auto;
+            box-shadow:0 1px 3px rgba(26,26,26,.3);
+            display: block;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            border:none;
+        }
+        .item-header{
+            height:auto;
+            font-size:25px;
+            padding:3px;
+            overflow: hidden;
+            padding-left: 1.25rem;
+        }
+        .item-body{
+            height:70px;
+            padding-left: 1.25rem;
+            padding-right: 1.25rem;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 3;
+            overflow: hidden;
+            font-size: 15px;
+        }
+        .people{
+            display: inline-block;
+            width:48%;
+            border-radius: 15px;
+            height:150px;
+            margin-top: 10px;
+            margin-bottom:10px;
+            margin-left: 1%;
+            padding:2%;
+            vertical-align: top;
+        }
+        .people-avater{
+            margin:0 auto;
+            display: inline-block;
+            width:23%;
+            opacity: 1;
+        }
+    </style>
+</html>

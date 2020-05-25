@@ -95,7 +95,14 @@
                         <template v-for="evidence in evidences">
                             <div class="item card" style="cursor: pointer;" v-on:click="goto_evidence(evidence.id)">
                                 <div v-bind:class="styleobject.itemheaderclass">{{evidence.header}}
-                                    <span class="badge badge-pill badge-info mybadge" v-for="b in evidence.badges">{{b}}</span>
+                                    <span style="font-size: 20px;">
+                                        <span v-if="evidence.state==0" v-bind:class="{badge:true,'badge-warning':true}">评审中</span>
+                                        <span v-if="evidence.state==-1" v-bind:class="{badge:true,'badge-danger':true}">未通过</span>
+                                        <span v-if="evidence.state==1" v-bind:class="{badge:true,'badge-success':true}">已通过</span>
+                                        <br>
+                                        <span class="badge badge-pill badge-info mybadge" v-for="b in evidence.badges">{{b}}</span>
+                                        </span>
+                                    
                                 </div>
                                 <div v-bind:class="styleobject.itembodyclass">{{evidence.content}}</div>
                             </div>
@@ -513,7 +520,7 @@
                     this.currentpage++;
                     axios({
                         method: 'get',
-                        url:'http://114.116.53.43/api/users/'+target+'/micropubs?page='+this.currentpage+'&per_page=10',
+                        url:'http://114.116.53.43/api/users/'+target+'/micropubs?statis=0,1,-1&page='+this.currentpage+'&per_page=10',
                         headers:{
                             'Cache-Control': 'no-cache',
                             'Authorization':'Bearer '+window.localStorage["token"],
@@ -529,6 +536,7 @@
                                     header:response.data.items[i].title,
                                     content:response.data.items[i].summary,
                                     badges:response.data.items[i].tags,
+                                    state:response.data.items[i].status
                                 })
                             }
                         }

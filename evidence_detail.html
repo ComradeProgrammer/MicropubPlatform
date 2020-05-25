@@ -51,7 +51,7 @@
                     <div class="main middle-body" v-bind:style="{'background-color':styleobject.front}">
                         <span style="font-size: 20px;"><strong>微证据详情:<br>{{content}}</strong></span>
                         <div style="height: 40px;width: 100%;">
-                            <div class="btn-group" style="width:50% ;float: right;">
+                            <div class="btn-group" style="width:50% ;float: right;" v-show="state!=0">
                                 <button v-bind:class="{btn:true,leftbutton:true,
                                     'btn-outline-primary':!darkmode&&!liked,'btn-outline-success':darkmode&&!liked,
                                     'btn-primary':!darkmode&&liked,'btn-success':darkmode&&liked}" v-on:click="like_click">
@@ -66,22 +66,53 @@
                         <hr v-bind:style="{border:'1px solid '+styleobject.content,margin:'3px'}">
                         <strong>外部引用:</strong><br/>
                         {{hrefs.length>0?'':'作者没有引用'}}
-                        <a v-for="(href,index) in hrefs" v-bind:href="href" v-bind:style="{'color':styleobject.content}">
-                            外部引用{{index+1}}:{{href}} <br></a>
+                        <span v-for="(href,index) in hrefs"  v-bind:style="{'color':styleobject.content}">
+                            外部引用{{index+1}}:{{href}} <br></span>
                         
                     </div>
-                    <!--评论区-->
+
+
+                    <div class="main middle-body" v-bind:style="{'background-color':styleobject.front,'font-size':'0'}"
+                    v-show="state==0&&!judged&&!modify">
+                        <label style="font-size: 20px;">请在此输入对微猜想做出的评审意见</label><br>
+                        <label style="font-size: 15px;color:red">对每个微猜想评审机会只有一次，评审意见一经给出就无法修改或删除，请务必谨慎填写</label>
+                        <textarea type="input" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content,height:'100px','padding-top':0}" v-model="judge_information" id="commenttext"></textarea>
+                        <div style="height: 5px;"></div>
+                        <button class="btn btn-danger" v-on:click="judge(false)">否定微猜想</button>    
+                        <button class="btn btn-success" v-on:click="judge(true)" style="float: right;">肯定微猜想</button>
+                    </div>
                     <div class="main middle-body" v-bind:style="{'background-color':styleobject.front,'font-size':'20px'}">
+                        评审意见
+                    </div>
+                    
+                    <div v-for="j in judge_reason" class="main judge" v-bind:style="{'background-color':styleobject.front,
+                    }" >
+                        某评审者
+                        <span v-if="j.state==-1" v-bind:class="{badge:true,'badge-danger':true}">否定</span>
+                        <span v-if="j.state==1" v-bind:class="{badge:true,'badge-success':true}">肯定</span>
+                        :{{j.reason}}
+                        <div style="width: 100%;">发表于:{{j.time}}
+                            
+                        </div>
+                    </div>
+
+                    <div class="main middle-body" v-bind:style="{'background-color':styleobject.front,'text-align':'center',width:'100%',margin:'0 auto','cursor':'pointer','margin-bottom':'15px'}" v-show="judge_reason.length==0">
+                        暂无评审意见
+                    </div>
+
+                    <!--评论区-->
+                    <div class="main middle-body" v-bind:style="{'background-color':styleobject.front,'font-size':'20px'}"
+                    v-show="state!=0">
                         评论区
                     </div>
                     <div class="main middle-body" v-bind:style="{'background-color':styleobject.front,'font-size':'0'}"
-                    v-show="input_comment" id="commenttext">
+                    v-show="input_comment" id="commenttext" >
                         <textarea type="input" class="form-control" v-bind:style="{'background-color':styleobject.front,color:styleobject.content,height:'100px','padding-top':0}" v-model="new_comment"></textarea>
                         <button v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode,}"
                         style="margin:10px;" v-on:click="send_comment">发表评论</button>
                     </div>
 
-                    <div v-for="comment in comments" class="main comment" v-bind:style="{'background-color':styleobject.front}">
+                    <div v-for="comment in comments" class="main comment" v-bind:style="{'background-color':styleobject.front}" v-show="state!=0">
                         <a  v-bind:href="'userinfo.html?id='+comment.id">@{{comment.username}}</a>:{{comment.content}}
                         <div style="width: 100%;">发表于:{{comment.date}}
                             <span style="float: right;">
@@ -94,18 +125,38 @@
                         </div>
                     </div>
 
-                    <div class="main middle-body" v-bind:style="{'background-color':styleobject.front,'text-align':'center',width:'100%',margin:'0 auto','cursor':'pointer'}" v-show="comments.length==0">
+                    <div class="main middle-body" v-bind:style="{'background-color':styleobject.front,'text-align':'center',width:'100%',margin:'0 auto','cursor':'pointer'}" v-show="comments.length==0&&state!=0">
                         暂无评论
                     </div>
-                    <!--div class="main middle-body" v-bind:style="{'background-color':styleobject.front,'text-align':'center',width:'100%',margin:'0 auto','cursor':'pointer'}" v-on:click="morecomments()">
-                        点击加载更多
-                    </div-->
+                    <div style="height: 20px;">
+
+                    </div>
+
                 </div>
                 <!--右侧-->
                 <div class="right">
                     <div class="main right-bar" v-bind:style="{'background-color':styleobject.front,'text-align':'center'}">
                         <strong>微证据详情</strong><br>
-                        发表时间:{{time}}
+                        发表时间:{{time}}<br>
+                        <span v-if="state==0" v-bind:class="{badge:true,'badge-warning':true}">评审中</span>
+                        <span v-if="state==-1" v-bind:class="{badge:true,'badge-danger':true}">未通过</span>
+                        <span v-if="state==1" v-bind:class="{badge:true,'badge-success':true}">已通过</span>
+                        <table style="width:100%;text-align: center;" >
+                            <thead>
+                                <th style="color:red">否定</th>
+                                <th style="color:#28a745">肯定</th>
+                            </thead>
+                            <tbody><tr>
+                                <td style="color:red">{{con}}</td>
+                                <td style="color:#28a745">{{pro}}</td>
+                            </tr></tbody>
+                        </table>
+                        <div style="width:100%;display: inline-block;">
+                            <div class="progress" >
+                                <div class="progress-bar bg-danger progress-bar-striped" v-bind:style="{width:100-probar+'%'}"></div>
+                                <div class="progress-bar bg-success progress-bar-striped" v-bind:style="{width:probar+'%'}"></div> 
+                            </div>
+                        </div>
                         <hr v-bind:style="{border:'1px solid '+styleobject.content,margin:'3px'}">
                         <table style="width:100%;text-align: center;" >
                             <thead>
@@ -122,7 +173,7 @@
                         
                         <template v-if="modify">
                             <button v-bind:class="{btn:true,leftbutton:true,'btn-primary':!darkmode,'btn-success':darkmode}" style="width: 99%;margin-top: 5px;" v-on:click="goto_modify">修改此微证据</button>
-                            <!--button class="btn btn-danger" style="width: 99%;margin-top: 2px;" v-on:click="goto_delete">删除此微证据</button-->
+                            <button class="btn btn-danger" style="width: 99%;margin-top: 2px;" v-on:click="goto_delete">删除此微证据</button>
                         </template>
                     </div>
                     <div class="main right-bar" v-bind:style="{'background-color':styleobject.front,'text-align':'center'}">
@@ -186,8 +237,14 @@
                 liked:false,
                 collected:false,
                 time:"",
-                //
                 modify:false,
+                //评审功能
+                pro:0,
+                con:0,
+                state:0,
+                judge_information:"",
+                judge_reason:[],
+                judged:false,
                 //评论区详情
                 comments:[],
                 //userinfo
@@ -205,6 +262,13 @@
                         return this.lightcolor;
                     }
                 },  
+                probar:function(){
+                    if(this.pro==0&&this.con==0){
+                        return 50;
+                    }
+                    var tmp=1/(this.pro+this.con)*this.pro;
+                    return tmp.toFixed(2)*100;
+                }
             },
             methods:{
                 switchtheme:function(){
@@ -247,6 +311,9 @@
                             this.topics=response.data.tags;
                             this.hrefs=response.data.reference.split("\n");
                             this.comments.splice(0,this.comments);
+                            this.pro=response.data.pros_num;
+                            this.con=response.data.cons_num;
+                            this.state=response.data.status
                             for(var i=0;i<this.remark;i++){
                                 this.comments.push({
                                     username:response.data.comments[i].author.username,
@@ -258,6 +325,25 @@
                                     liked:response.data.comments[i].likers_id.includes(parseInt(window.localStorage["id"]))
                                 })
                             }
+                            var judged_id=[]
+                            for(var i=0;i<response.data.pros_num;i++){
+                                this.judge_reason.push({
+                                    reason:response.data.pros[i].reason,
+                                    time:response.data.pros[i].timestamp.substring(0,10),
+                                    state:1
+                                })
+                                judged_id.push(response.data.pros[i].user_id)
+                            }
+                            for(var i=0;i<response.data.cons_num;i++){
+                                this.judge_reason.push({
+                                    reason:response.data.cons[i].reason,
+                                    time:response.data.cons[i].timestamp.substring(0,10),
+                                    state:-1
+                                })
+                                judged_id.push(response.data.cons[i].user_id)
+                            }
+                            this.judged=judged_id.includes(parseInt(window.localStorage["id"]))
+
                             if(response.data.author_id==window.localStorage["id"]){
                                 this.modify=true;
                             }
@@ -273,13 +359,13 @@
                                 return;
                             } 
                         }
-                        else if(error.response==404){
+                        else if(error.response.status==404){
                             alert("该微证据不存在或已被删除");
-                            window.history.back(-1);
+                            window.location.href="index.html";
                         }
                         else if(error.response.status==403){
                             alert("您没有相应权限");
-                            window.history.back(-1);
+                            window.location.href="login.html?type=1";
                         }
                     }.bind(this));
                     
@@ -324,7 +410,7 @@
                         }
                         if(error.response.status==404){
                             alert("发生错误");
-                            window.history.back(-1);
+                            window.location.href="login.html?type=1";
                         }
                         console.log(error.response)
                     }.bind(this))
@@ -362,11 +448,10 @@
                         }
                         else if(error.response==404){
                             alert("该微证据不存在或已被删除");
-                            window.history.back(-1);
+                            window.location.href="login.html?type=1";
                         }
                         else if(error.response.status==403){
                             alert("您没有相应权限");
-                            window.history.back(-1);
                         }
                     }.bind(this))
                 },
@@ -402,11 +487,10 @@
                         }
                         else if(error.response==404){
                             alert("该微证据不存在或已被删除");
-                            window.history.back(-1);
+                            window.location.href="login.html?type=1";
                         }
                         else if(error.response.status==403){
                             alert("您没有相应权限");
-                            window.history.back(-1);
                         }
                     }.bind(this))
                 },
@@ -416,6 +500,10 @@
                 },
                 goto_delete:function(){
                     var id=this.getQueryVariable("id");
+                    var r = confirm("确认删除?");
+                    if(!r){
+                        return
+                    }
                     axios({
                         method: 'delete',
                         url:"http://114.116.53.43/api/micropubs/"+id,
@@ -427,7 +515,7 @@
                         response=>{
                             console.log(response)
                             alert("删除成功");
-                            window.history.back(-1);
+                            window.location.href="login.html?type=1";
                             //this.liked=!this.liked;
                         } 
                     ).catch(function (error) {
@@ -439,11 +527,10 @@
                         }
                         else if(error.response==404){
                             alert("该微证据不存在或已被删除");
-                            window.history.back(-1);
+                            window.location.href="login.html?type=1";
                         }
                         else if(error.response.status==403){
                             alert("您无权删除此微证据");
-                            window.history.back(-1);
                         }
                     }.bind(this))
                 },
@@ -478,11 +565,10 @@
                         }
                         else if(error.response==404){
                             alert("该微猜想不存在或已被删除");
-                            window.history.back(-1);
+                            window.location.href="login.html?type=1";
                         }
                         else if(error.response.status==403){
                             alert("您没有相应权限");
-                            window.history.back(-1);
                         }
                     }.bind(this))
                 },
@@ -566,6 +652,55 @@
                         }
                     }.bind(this))
                 },
+                judge(res){
+                    if(res){
+                        api='http://114.116.53.43/api/micropubs/'+this.getQueryVariable("id")+'/pro'
+                    }
+                    else{
+                        api='http://114.116.53.43/api/micropubs/'+this.getQueryVariable("id")+'/con'
+                    }
+                    var bundle={reason:this.judge_information}
+                    if(this.judge_information==""){
+                        alert("请填写评审理由")
+                        return
+                    }
+                    axios({
+                        method: 'post',
+                        url:api,
+                        headers:{
+                            'Content-Type': 'application/json',
+                            'Cache-Control': 'no-cache',
+                            'Authorization':'Bearer '+window.localStorage["token"],
+                        },
+                        data:JSON.stringify(bundle),
+                    }).then(
+                        response=>{
+                            console.log(response)
+                            if(response.data.status=="failed"){
+                                alert(response.data.message)
+                            }
+                            else{
+                                alert("评价成功")
+                            }
+                            
+                            window.location.reload();
+                        } 
+                    ).catch(function (error) {
+                        if(error.response.status==400){
+                            if(!error.response.data.message){
+                                window.location.href="login.html?type=1";
+                                return;
+                            } 
+                        }
+                        else if(error.response.status==403){
+                            alert("您没有相应权限");
+                        }
+                        else {
+                            console.log(error.response)
+                            alert("您已经评价过该猜想")
+                        }
+                    }.bind(this))
+                },
             },
             mounted(){
                 if(!window.localStorage["dark"]||window.localStorage["dark"]=="false"){
@@ -582,7 +717,7 @@
                 var id=this.getQueryVariable("id");
                 if(!id){
                     alert("非法链接");
-                    window.history.back(-1);
+                    window.location.href="login.html?type=1";
                 }
                 this.getdata(id);
             }
@@ -644,6 +779,13 @@
             height:100px;
             width:100px;
             opacity: 1;
+        }
+        .judge{
+            width:100%;
+            height:auto;
+            font-size: 15px;
+            padding:2%;
+            margin: 0 auto;
         }
 		.btn-primary {
 			background-color: #2e4e7e;

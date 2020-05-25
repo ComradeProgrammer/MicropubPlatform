@@ -42,7 +42,10 @@
                             <hr v-bind:style="{border:'1px solid '+styleobject.content,margin:'2px'}">
                             <span style="font-size: 20px;"><strong>孵化项目简介:</strong></span><br>
                             {{body}}<br>
-                            <span style="font-size: 15px;"><strong>项目创建时间:</strong></span>{{time}}
+                            <span style="font-size: 15px;"><strong>项目创建时间:</strong></span>{{time}}<br>
+                            <button v-bind:class="{btn:true,'btn-primary':!darkmode,'btn-success':darkmode}"
+                            v-show="mine" v-on:click="goto_edit">
+                            修改此项目</button>
                         </div>
                         <nav v-bind:class="{navbar:true,'navbar-expand-sm':true ,'navbar-dark':true,main:true,'bg-primary':!darkmode,'bg-success':darkmode}" style="width:100%;margin:10px auto;margin-bottom:10px;">
                             <ul class="navbar-nav">
@@ -190,6 +193,7 @@
                     bgpic:"url('static/img/bgdark.png')"
                 },
                 mineavatar:window.localStorage["avatar"],
+                mine:false,
                 mode:0,
                 title:"",
                 body:"",
@@ -593,6 +597,10 @@
                 goto_user:function(id){
                     window.open("userinfo.html?id="+id);
                 },
+                goto_edit:function(){
+                    var id=this.getQueryVariable("id");
+                    window.open('create_cradle.html?id='+id);
+                }
             },
             mounted(){
                 if(!window.localStorage["dark"]||window.localStorage["dark"]=="false"){
@@ -610,6 +618,9 @@
                 if(!id){
                     alert("非法链接");
                     window.history.back(-1);
+                }
+                if(id==window.localStorage["id"]){
+                    this.mine=true
                 }
                 this.getcradle(id);
             }

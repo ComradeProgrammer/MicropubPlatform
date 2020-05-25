@@ -355,15 +355,13 @@
                                     tmp.id=response.data.items[i].microcon.id;
                                     tmp.header=response.data.items[i].author.username+" 评论了微猜想 "+
                                     response.data.items[i].microcon.title
-                                    tmp.content=response.data.items[i].author.username+" 评论了微猜想 "+
-                                    response.data.items[i].microcon.title
+                                    tmp.content=response.data.items[i].body
                                 }
                                 else{
                                     tmp.id=response.data.items[i].micropub.id;
                                     tmp.header=response.data.items[i].author.username+" 评论了微猜想 "+
                                     response.data.items[i].micropub.title
-                                    tmp.content=response.data.items[i].author.username+" 评论了微猜想 "+
-                                    response.data.items[i].micropub.title
+                                    tmp.content=response.data.items[i].body
                                 }
                                 this.maindata.push(tmp)
                             }
